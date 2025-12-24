@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dolan Sawah - Clean Pixel Edition</title>
+    <title>Dolan Sawah - Fixed Size</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -22,12 +22,12 @@
             width: 100%; max-width: 480px; height: 100%;
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            background: #4fa4b8; /* Warna langit dasar */
+            background: #4fa4b8;
         }
 
         canvas { 
             display: block; width: 100%; height: 100%; z-index: 1; 
-            image-rendering: pixelated; /* KUNCI KETAJAMAN */
+            image-rendering: pixelated; 
             image-rendering: crisp-edges; 
         }
 
@@ -117,7 +117,7 @@
         
         <div id="loading-screen">
             <div style="font-size: 1.2rem; margin-bottom: 10px;">MEMUAT PIXEL...</div>
-            <div>Menata Sawah & Gunung</div>
+            <div>Mengecilkan Hewan Raksasa</div>
         </div>
 
         <div class="ui-layer" id="score-display" style="display:none;">0</div>
@@ -376,11 +376,8 @@
                 assets.imgBirdUp = bUp; assets.imgBirdDown = bDown;
                 assets.imgRusa = rusa; assets.imgKelinci = kelinci; assets.imgDomba = domba;
 
-                // Create Procedural Assets
                 const cP = createAssetCanvas(CONFIG.pipeW, 600); drawPixelLog(cP.ctx, CONFIG.pipeW, 600); assets.pipe = cP.cvs;
                 const cG = createAssetCanvas(480, 130); drawCleanGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
-                
-                // BG Jauh (Gunung)
                 const cC = createAssetCanvas(480, 640); drawCleanBgFar(cC.ctx, 480, 640); assets.bgFar = cC.cvs;
                 
                 // BG Tengah (Sawah + Hewan)
@@ -467,21 +464,18 @@
             ctx.fill();
         }
 
-        // --- BACKGROUND TENGAH (Sawah & Hewan) ---
+        // --- FIX UTAMA: BACKGROUND TENGAH (UKURAN HEWAN) ---
         function drawCleanBgMid(ctx, w, h) {
-            // Kita gambar sawah terasering
-            // Teras 1 (Atas/Jauh) - Y: 0 - 60
+            // Sawah Terasering
             drawPixelRect(ctx, 0, 0, w, 60, "#71c971"); 
-            drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c"); // Garis Pematang 1
+            drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c");
 
-            // Teras 2 (Tengah) - Y: 60 - 140
             drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
-            drawPixelRect(ctx, 0, 135, w, 5, "#71c971"); // Garis Pematang 2
+            drawPixelRect(ctx, 0, 135, w, 5, "#71c971");
 
-            // Teras 3 (Bawah/Dekat) - Y: 140 - 240
             drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
 
-            // Jalan Tanah & Plang
+            // Jalan & Plang
             drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a");
             const signX = 240; const signY = 60;
             drawPixelRect(ctx, signX-40, signY+30, 16, 100, "#633d26");
@@ -496,36 +490,37 @@
             ctx.fillText("DOLAN SAWAH", signX, signY+5);
             ctx.shadowColor = "transparent";
 
-            // --- MENANAM HEWAN KE BACKGROUND (Agar ikut looping) ---
-            // Fungsi helper menanam hewan
-            const plantAnimal = (img, x, groundLineY, scale) => {
+            // --- FUNGSI TANAM HEWAN YANG DIPERBAIKI ---
+            // Kita tambahkan parameter 'targetHeight' untuk memaksa ukuran pixel
+            const plantAnimal = (img, x, groundLineY, targetHeight) => {
                 if(!img) return;
-                let sw = img.width * scale;
-                let sh = img.height * scale;
-                // Gambar tepat di atas garis pematang (groundLineY)
+                // Hitung rasio asli gambar agar tidak gepeng
+                let ratio = img.width / img.height;
+                let sh = targetHeight; // Tinggi dipaksa (misal 32px)
+                let sw = sh * ratio;   // Lebar menyesuaikan rasio
+
+                // Gambar dengan ukuran kecil
                 ctx.drawImage(img, x - sw/2, groundLineY - sh + 2, sw, sh);
             };
 
-            // Teras 1 (Garis Pematang di Y=55)
-            plantAnimal(assets.imgDomba, 80, 55, 0.3);
-            plantAnimal(assets.imgRusa, 420, 55, 0.35);
+            // Teras 1 (Jauh - Kecil 30px)
+            plantAnimal(assets.imgDomba, 80, 55, 30);
+            plantAnimal(assets.imgRusa, 420, 55, 35);
 
-            // Teras 2 (Garis Pematang di Y=135)
-            plantAnimal(assets.imgKelinci, 340, 135, 0.5);
-            plantAnimal(assets.imgDomba, 100, 135, 0.55);
+            // Teras 2 (Tengah - Sedang 45px)
+            plantAnimal(assets.imgKelinci, 340, 135, 40);
+            plantAnimal(assets.imgDomba, 100, 135, 45);
 
-            // Teras 3 (Garis Pematang paling bawah sawah di Y=240, tapi kita taruh agak naik Y=230)
-            plantAnimal(assets.imgRusa, 380, 230, 0.7);
-            plantAnimal(assets.imgKelinci, 60, 230, 0.6);
+            // Teras 3 (Dekat - Besar 60px)
+            plantAnimal(assets.imgRusa, 380, 230, 65);
+            plantAnimal(assets.imgKelinci, 60, 230, 50);
         }
 
-        // --- HELPER UNTUK TILING/LOOPING GAMBAR ---
+        // --- HELPER UNTUK TILING/LOOPING ---
         function drawLayer(ctx, img, speedOffset, yPos, imgW, imgH) {
             if(!img) return;
-            // Hitung berapa kali gambar harus diulang
             const numTiles = Math.ceil(canvas.width / imgW) + 1;
             const offsetMod = Math.floor(speedOffset % imgW);
-
             for (let i = 0; i < numTiles; i++) {
                 let xPos = (i * imgW) - offsetMod;
                 ctx.drawImage(img, xPos, yPos);
@@ -575,7 +570,6 @@
 
             if (game.state === 'PLAY') updatePhysics(dt);
             else if (game.state === 'START') {
-                // Auto scroll saat menu
                 game.groundOff += CONFIG.speed * dt;
                 game.midOff += CONFIG.speed * 0.1 * dt;
                 game.bgOff += CONFIG.speed * 0.02 * dt;
@@ -590,10 +584,9 @@
             if(game.bird.v < 0) game.bird.rot = Math.max(-0.4, game.bird.rot - 3 * dt);
             else game.bird.rot = Math.min(1.2, game.bird.rot + 2.5 * dt);
 
-            // Pergerakan Parallax (Beda kecepatan tiap layer)
             game.groundOff += CONFIG.speed * dt;
-            game.midOff += CONFIG.speed * 0.1 * dt; // Sawah pelan
-            game.bgOff += CONFIG.speed * 0.02 * dt; // Gunung sangat pelan
+            game.midOff += CONFIG.speed * 0.1 * dt; 
+            game.bgOff += CONFIG.speed * 0.02 * dt;
 
             game.timeAccum += dt;
             if(game.timeAccum > 1.5) {
@@ -629,34 +622,28 @@
             if(game.bird.y >= canvas.height - 130 - 20) game.over();
         }
 
-        // --- DRAW FUNCTION (FIXED FOR TILING) ---
         function draw(dt) {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            
-            // 0. Warna Langit Dasar (Agar tidak bolong)
             ctx.fillStyle = "#4fa4b8"; ctx.fillRect(0,0,canvas.width,canvas.height);
 
             let groundY = canvas.height - 130;
             
-            // 1. BG Jauh (Gunung) - Tiling
-            // Posisi Y disesuaikan agar gunung pas di horizon
+            // BG Layers
             drawLayer(ctx, assets.bgFar, game.bgOff, groundY - 510, 480, 640);
-
-            // 2. BG Tengah (Sawah & Hewan) - Tiling
             let midY = groundY - 220; 
             drawLayer(ctx, assets.bgMid, game.midOff, midY, 480, 240);
             
-            // 3. Pipa (Tetap manual karena koordinat dinamis)
+            // Pipes
             for(let p of game.pipes) {
                 let px = Math.floor(p.x);
                 ctx.save(); ctx.translate(px, p.topH); ctx.scale(1, -1); ctx.drawImage(assets.pipe, 0, 0); ctx.restore();
                 ctx.drawImage(assets.pipe, px, p.topH + CONFIG.gap);
             }
             
-            // 4. Tanah - Tiling
+            // Ground
             drawLayer(ctx, assets.ground, game.groundOff, groundY, 480, 130);
             
-            // 5. Burung
+            // Bird
             ctx.save(); ctx.translate(60, game.bird.y); ctx.rotate(game.bird.rot);
             if (game.graceTime > 0 && Math.floor(Date.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
             let birdImg = assets.imgBirdUp;
