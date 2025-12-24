@@ -25,10 +25,9 @@
             background: #4fa4b8; /* Warna langit dasar */
         }
 
-        /* KUNCI VISUAL PIXEL YANG TAJAM */
         canvas { 
             display: block; width: 100%; height: 100%; z-index: 1; 
-            image-rendering: pixelated; 
+            image-rendering: pixelated; /* KUNCI KETAJAMAN */
             image-rendering: crisp-edges; 
         }
 
@@ -311,7 +310,7 @@
     </script>
 
     <script>
-        // --- AUDIO ENGINE (Retro Chiptune) ---
+        // --- AUDIO ENGINE ---
         const AudioEngine = {
             ctx: null,
             init: function() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -339,12 +338,10 @@
             }
         };
 
-        // --- GAME ENGINE ---
+        // --- GAME ENGINE SETUP ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d', { alpha: false }); 
-        // PENTING: Pastikan smoothing mati agar tajam
-        ctx.imageSmoothingEnabled = false;
-
+        
         const CONFIG = {
             gravity: 1200, jump: 360, speed: 170,
             gap: 140, pipeW: 70
@@ -379,11 +376,14 @@
                 assets.imgBirdUp = bUp; assets.imgBirdDown = bDown;
                 assets.imgRusa = rusa; assets.imgKelinci = kelinci; assets.imgDomba = domba;
 
-                // --- GENERATE CLEAN PIXEL ASSETS ---
+                // Create Procedural Assets
                 const cP = createAssetCanvas(CONFIG.pipeW, 600); drawPixelLog(cP.ctx, CONFIG.pipeW, 600); assets.pipe = cP.cvs;
                 const cG = createAssetCanvas(480, 130); drawCleanGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
+                
+                // BG Jauh (Gunung)
                 const cC = createAssetCanvas(480, 640); drawCleanBgFar(cC.ctx, 480, 640); assets.bgFar = cC.cvs;
-                // Canvas Sawah Terasering
+                
+                // BG Tengah (Sawah + Hewan)
                 const cS = createAssetCanvas(480, 240); drawCleanBgMid(cS.ctx, 480, 240); assets.bgMid = cS.cvs;
 
                 document.getElementById('loading-screen').style.display = 'none';
@@ -404,22 +404,19 @@
             return { cvs: c, ctx: ctx };
         }
 
-        // --- FUNGSI GAMBAR PIXEL ART YANG BERSIH (CLEAN) ---
+        // --- ASSET DRAWING FUNCTIONS ---
 
         function drawPixelRect(ctx, x, y, w, h, color) {
             ctx.fillStyle = color; ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
         }
 
-        // 1. Batang Kayu Pixel (Log) - Tetap sama karena sudah cukup jelas
         function drawPixelLog(ctx, w, h) {
             const cDark = "#3a2416"; const cMed = "#633d26"; const cLight = "#8a5a3a"; const cHigh = "#b07d54";
             drawPixelRect(ctx, 0, 0, w*0.2, h, cDark);
             drawPixelRect(ctx, w*0.2, 0, w*0.3, h, cMed);
             drawPixelRect(ctx, w*0.5, 0, w*0.3, h, cLight);
             drawPixelRect(ctx, w*0.8, 0, w*0.2, h, cHigh);
-            for(let i=0; i<h; i+=16) { 
-                drawPixelRect(ctx, Math.random()*w*0.8, i, 8, 4, cDark);
-            }
+            for(let i=0; i<h; i+=16) drawPixelRect(ctx, Math.random()*w*0.8, i, 8, 4, cDark);
             drawLogEnd(ctx, 0, w, cDark, cMed, cLight);
             drawLogEnd(ctx, h-20, w, cDark, cMed, cLight);
         }
@@ -429,129 +426,113 @@
             drawPixelRect(ctx, 12, y+8, w-24, 4, c3);
         }
 
-        // 2. Tanah Pixel (Pematang Sawah) - Lebih rapi
         function drawCleanGround(ctx, w, h) {
             const P_SZ = 8;
-            // Lapisan Rumput Atas (Pematang)
             drawPixelRect(ctx, 0, 0, w, P_SZ*2, "#5cb85c");
             for(let x=0; x<w; x+=P_SZ*2) drawPixelRect(ctx, x, 0, P_SZ, P_SZ, "#71c971");
-
-            // Lapisan Tanah Bawah (Tebing sawah)
             drawPixelRect(ctx, 0, P_SZ*2, w, h-P_SZ*2, "#633d26");
             for(let x=0; x<w; x+=P_SZ*4) drawPixelRect(ctx, x, P_SZ*3, P_SZ*2, P_SZ, "#8a5a3a");
         }
 
-        // 3. Background Jauh (Langit & Gunung Geometris Bersih)
         function drawCleanBgFar(ctx, w, h) {
-            // Langit: 3 Pita warna solid yang lebar (Bukan banyak pita kecil)
-            drawPixelRect(ctx, 0, 0, w, h*0.4, "#4fa4b8"); // Atas
-            drawPixelRect(ctx, 0, h*0.4, w, h*0.3, "#6dc2ca"); // Tengah
-            drawPixelRect(ctx, 0, h*0.7, w, h*0.3, "#aaeaf0"); // Bawah
+            drawPixelRect(ctx, 0, 0, w, h*0.4, "#4fa4b8"); 
+            drawPixelRect(ctx, 0, h*0.4, w, h*0.3, "#6dc2ca");
+            drawPixelRect(ctx, 0, h*0.7, w, h*0.3, "#aaeaf0");
 
-            // Awan Pixel Besar & Jelas
             drawBigCloud(ctx, 80, 120, 100); 
             drawBigCloud(ctx, 350, 80, 80); 
             drawBigCloud(ctx, 250, 220, 60);
 
-            // Gunung Geometris (Bentuk Segitiga Solid Lapis Demi Lapis)
             let gy = h - 180;
-            // Gunung Paling Jauh (Ungu Gelap)
             drawTriangleMountain(ctx, 0, gy+50, w, 200, "#3a3a7a");
-            // Gunung Tengah (Teal Gelap)
             drawTriangleMountain(ctx, -100, gy+80, w+200, 150, "#2a7a7a");
-            // Gunung Depan (Hijau Gelap)
             drawTriangleMountain(ctx, -50, gy+120, w+100, 100, "#2a7a3a");
         }
 
         function drawBigCloud(ctx, x, y, s) {
              ctx.fillStyle = "#ffffff";
-             let bs = s/4; // block size
-             // Awan bentuk tumpukan balok sederhana
-             drawPixelRect(ctx, x-bs*2, y, bs*4, bs, "#fff"); // Tengah
-             drawPixelRect(ctx, x-bs, y-bs, bs*2, bs, "#fff"); // Atas
-             drawPixelRect(ctx, x-bs*1.5, y+bs, bs*3, bs/2, "#fff"); // Bawah
+             let bs = s/4; 
+             drawPixelRect(ctx, x-bs*2, y, bs*4, bs, "#fff"); 
+             drawPixelRect(ctx, x-bs, y-bs, bs*2, bs, "#fff"); 
+             drawPixelRect(ctx, x-bs*1.5, y+bs, bs*3, bs/2, "#fff"); 
         }
 
         function drawTriangleMountain(ctx, xStart, yBase, width, height, color) {
             ctx.fillStyle = color;
             ctx.beginPath();
             ctx.moveTo(xStart, yBase);
-            ctx.lineTo(xStart + width/2, yBase - height); // Puncak
+            ctx.lineTo(xStart + width/2, yBase - height);
             ctx.lineTo(xStart + width, yBase);
             ctx.closePath();
             ctx.fill();
-            // Tambah sedikit shading di sisi kanan (opsional, agar tidak terlalu datar)
-             ctx.fillStyle = "rgba(0,0,0,0.1)";
-             ctx.beginPath();
-             ctx.moveTo(xStart + width/2, yBase - height);
-             ctx.lineTo(xStart + width, yBase);
-             ctx.lineTo(xStart + width/2, yBase);
-             ctx.closePath();
-             ctx.fill();
         }
 
-
-        // 4. Background Tengah (Sawah Terasering & Plang & Hewan)
+        // --- BACKGROUND TENGAH (Sawah & Hewan) ---
         function drawCleanBgMid(ctx, w, h) {
-            const P_SZ = 8;
-            
-            // SAWAH TERASERING (Pita warna horizontal bergantian)
-            // Teras 1 (Jauh - Atas)
+            // Kita gambar sawah terasering
+            // Teras 1 (Atas/Jauh) - Y: 0 - 60
             drawPixelRect(ctx, 0, 0, w, 60, "#71c971"); 
-            drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c"); // Batas pematang
-            
-            // Teras 2 (Tengah)
-            drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
-            drawPixelRect(ctx, 0, 135, w, 5, "#71c971"); // Batas pematang
+            drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c"); // Garis Pematang 1
 
-            // Teras 3 (Dekat - Bawah)
+            // Teras 2 (Tengah) - Y: 60 - 140
+            drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
+            drawPixelRect(ctx, 0, 135, w, 5, "#71c971"); // Garis Pematang 2
+
+            // Teras 3 (Bawah/Dekat) - Y: 140 - 240
             drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
 
-            // Jalan Tanah untuk Plang
+            // Jalan Tanah & Plang
             drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a");
-            
-            
-            // PLANG KAYU PIXEL "DOLAN SAWAH" PUTIH (Di atas jalan tanah)
             const signX = 240; const signY = 60;
-            // Tiang
             drawPixelRect(ctx, signX-40, signY+30, 16, 100, "#633d26");
             drawPixelRect(ctx, signX+24, signY+30, 16, 100, "#633d26");
-            // Papan 
             ctx.fillStyle = "#b07d54"; ctx.fillRect(signX-80, signY-20, 160, 50);
             ctx.fillStyle = "#8a5a3a"; ctx.fillRect(signX-75, signY-15, 150, 40);
-            // Paku
             drawPixelRect(ctx, signX-70, signY, 8, 8, "#3a2416");
             drawPixelRect(ctx, signX+62, signY, 8, 8, "#3a2416");
-            
-            // TEXT PIXEL PUTIH
             ctx.fillStyle = "#ffffff"; 
             ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.shadowColor = "#000000"; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2; ctx.shadowBlur = 0;
+            ctx.shadowColor = "#000000"; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
             ctx.fillText("DOLAN SAWAH", signX, signY+5);
             ctx.shadowColor = "transparent";
 
-            // --- PLACEMENT HEWAN (Di atas garis pematang agar terlihat menapak) ---
-            const placeAnimal = (img, x, y, scale) => {
+            // --- MENANAM HEWAN KE BACKGROUND (Agar ikut looping) ---
+            // Fungsi helper menanam hewan
+            const plantAnimal = (img, x, groundLineY, scale) => {
                 if(!img) return;
-                let sw = img.width * scale; let sh = img.height * scale;
-                // y adalah titik kaki berpijak
-                ctx.drawImage(img, x - sw/2, y - sh, sw, sh);
+                let sw = img.width * scale;
+                let sh = img.height * scale;
+                // Gambar tepat di atas garis pematang (groundLineY)
+                ctx.drawImage(img, x - sw/2, groundLineY - sh + 2, sw, sh);
             };
 
-            // Hewan Jauh (Di Teras 1)
-            placeAnimal(assets.imgDomba, 80, 55, 0.3);
-            placeAnimal(assets.imgRusa, 400, 58, 0.35);
-            
-            // Hewan Sedang (Di Teras 2)
-            placeAnimal(assets.imgKelinci, 320, 135, 0.5);
-            placeAnimal(assets.imgDomba, 120, 138, 0.55);
+            // Teras 1 (Garis Pematang di Y=55)
+            plantAnimal(assets.imgDomba, 80, 55, 0.3);
+            plantAnimal(assets.imgRusa, 420, 55, 0.35);
 
-            // Hewan Dekat (Di Teras 3 - Bawah)
-            placeAnimal(assets.imgRusa, 380, 220, 0.7);
-            placeAnimal(assets.imgKelinci, 80, 230, 0.6);
+            // Teras 2 (Garis Pematang di Y=135)
+            plantAnimal(assets.imgKelinci, 340, 135, 0.5);
+            plantAnimal(assets.imgDomba, 100, 135, 0.55);
+
+            // Teras 3 (Garis Pematang paling bawah sawah di Y=240, tapi kita taruh agak naik Y=230)
+            plantAnimal(assets.imgRusa, 380, 230, 0.7);
+            plantAnimal(assets.imgKelinci, 60, 230, 0.6);
         }
 
-        // --- LOGIKA GAME ---
+        // --- HELPER UNTUK TILING/LOOPING GAMBAR ---
+        function drawLayer(ctx, img, speedOffset, yPos, imgW, imgH) {
+            if(!img) return;
+            // Hitung berapa kali gambar harus diulang
+            const numTiles = Math.ceil(canvas.width / imgW) + 1;
+            const offsetMod = Math.floor(speedOffset % imgW);
+
+            for (let i = 0; i < numTiles; i++) {
+                let xPos = (i * imgW) - offsetMod;
+                ctx.drawImage(img, xPos, yPos);
+            }
+        }
+
+        // --- GAME LOGIC ---
         const game = {
             state: 'START', score: 0,
             bird: { y: 0, v: 0, rot: 0 },
@@ -591,10 +572,13 @@
         function loop(timestamp) {
             const dt = Math.min((timestamp - lastTime) / 1000, 0.06);
             lastTime = timestamp;
+
             if (game.state === 'PLAY') updatePhysics(dt);
             else if (game.state === 'START') {
-                game.groundOff = (game.groundOff + CONFIG.speed * dt) % 480;
-                game.midOff = (game.midOff + CONFIG.speed * 0.05 * dt) % 480;
+                // Auto scroll saat menu
+                game.groundOff += CONFIG.speed * dt;
+                game.midOff += CONFIG.speed * 0.1 * dt;
+                game.bgOff += CONFIG.speed * 0.02 * dt;
                 game.bird.y = canvas.height/2 - 50 + Math.sin(timestamp/300)*15;
             }
             draw(dt); requestAnimationFrame(loop);
@@ -606,14 +590,16 @@
             if(game.bird.v < 0) game.bird.rot = Math.max(-0.4, game.bird.rot - 3 * dt);
             else game.bird.rot = Math.min(1.2, game.bird.rot + 2.5 * dt);
 
-            game.groundOff = (game.groundOff + CONFIG.speed * dt) % 480;
-            game.bgOff = (game.bgOff + CONFIG.speed * 0.02 * dt) % 480; 
-            game.midOff = (game.midOff + CONFIG.speed * 0.1 * dt) % 480; 
+            // Pergerakan Parallax (Beda kecepatan tiap layer)
+            game.groundOff += CONFIG.speed * dt;
+            game.midOff += CONFIG.speed * 0.1 * dt; // Sawah pelan
+            game.bgOff += CONFIG.speed * 0.02 * dt; // Gunung sangat pelan
 
             game.timeAccum += dt;
             if(game.timeAccum > 1.5) {
                 game.timeAccum = 0;
-                let groundY = canvas.height - 130; let minSafe = 80; let maxSafe = groundY - CONFIG.gap - 80;
+                let groundY = canvas.height - 130; 
+                let minSafe = 80; let maxSafe = groundY - CONFIG.gap - 80;
                 let h;
                 if(game.pipes.length === 0) h = Math.floor(Math.random() * (maxSafe - minSafe + 1) + minSafe);
                 else {
@@ -643,28 +629,32 @@
             if(game.bird.y >= canvas.height - 130 - 20) game.over();
         }
 
+        // --- DRAW FUNCTION (FIXED FOR TILING) ---
         function draw(dt) {
             ctx.clearRect(0,0,canvas.width, canvas.height);
+            
+            // 0. Warna Langit Dasar (Agar tidak bolong)
+            ctx.fillStyle = "#4fa4b8"; ctx.fillRect(0,0,canvas.width,canvas.height);
+
             let groundY = canvas.height - 130;
             
-            // 1. BG Jauh (Gunung & Langit Clean Pixel)
-            ctx.drawImage(assets.bgFar, 0, 640 - canvas.height, 480, canvas.height, 0, 0, canvas.width, canvas.height);
+            // 1. BG Jauh (Gunung) - Tiling
+            // Posisi Y disesuaikan agar gunung pas di horizon
+            drawLayer(ctx, assets.bgFar, game.bgOff, groundY - 510, 480, 640);
 
-            // 2. BG Tengah (Sawah Terasering & Hewan)
-            let mo = Math.floor(game.midOff);
-            let midY = groundY - 240 + 20; 
-            ctx.drawImage(assets.bgMid, -mo, midY); ctx.drawImage(assets.bgMid, 480-mo, midY);
+            // 2. BG Tengah (Sawah & Hewan) - Tiling
+            let midY = groundY - 220; 
+            drawLayer(ctx, assets.bgMid, game.midOff, midY, 480, 240);
             
-            // 3. Pipa Batang Kayu
+            // 3. Pipa (Tetap manual karena koordinat dinamis)
             for(let p of game.pipes) {
                 let px = Math.floor(p.x);
                 ctx.save(); ctx.translate(px, p.topH); ctx.scale(1, -1); ctx.drawImage(assets.pipe, 0, 0); ctx.restore();
                 ctx.drawImage(assets.pipe, px, p.topH + CONFIG.gap);
             }
             
-            // 4. Tanah Clean Pixel
-            let go = Math.floor(game.groundOff);
-            ctx.drawImage(assets.ground, -go, groundY); ctx.drawImage(assets.ground, 480-go, groundY);
+            // 4. Tanah - Tiling
+            drawLayer(ctx, assets.ground, game.groundOff, groundY, 480, 130);
             
             // 5. Burung
             ctx.save(); ctx.translate(60, game.bird.y); ctx.rotate(game.bird.rot);
@@ -693,6 +683,7 @@
         window.addEventListener('keydown', (e) => { if(['Space', 'ArrowUp', 'KeyW'].includes(e.code)) inputAction(e); });
         document.getElementById('btn-start').onclick = () => game.start();
         document.getElementById('btn-restart').onclick = () => { game.state = 'START'; showScreen('screen-start'); };
+        
         function resize() { 
             canvas.width = stage.clientWidth; canvas.height = stage.clientHeight; 
             ctx.imageSmoothingEnabled = false;
