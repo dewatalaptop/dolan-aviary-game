@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dolan Sawah - Pixel Edition</title>
+    <title>Dolan Sawah - Clean Pixel Edition</title>
     <style>
-        /* Menggunakan font pixel untuk UI agar serasi */
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
-        /* --- BASE STYLES --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
         body {
             margin: 0; padding: 0;
             height: 100dvh; width: 100vw;
             background-color: #222;
-            /* Font UI diubah ke pixel style */
             font-family: 'Press Start 2P', cursive; 
             overflow: hidden; touch-action: none; 
             display: flex; justify-content: center; align-items: center;
@@ -25,23 +22,22 @@
             width: 100%; max-width: 480px; height: 100%;
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            /* Warna background dasar langit pixel */
-            background: #6dc2ca; 
+            background: #4fa4b8; /* Warna langit dasar */
         }
 
-        /* KUNCI PIXEL ART: image-rendering agar tidak blur saat di-scale */
+        /* KUNCI VISUAL PIXEL YANG TAJAM */
         canvas { 
             display: block; width: 100%; height: 100%; z-index: 1; 
-            image-rendering: pixelated; /* Standar modern */
-            image-rendering: crisp-edges; /* Firefox */
+            image-rendering: pixelated; 
+            image-rendering: crisp-edges; 
         }
 
-        /* --- UI LAYERS (Font size disesuaikan untuk pixel font yang lebar) --- */
+        /* --- UI Styles --- */
         .ui-layer { position: absolute; width: 100%; pointer-events: none; z-index: 50; text-align: center; }
         
         #score-display {
-            top: 10%; font-size: 2.5rem; color: #FFD700; /* Emas pixel */
-            text-shadow: 4px 4px 0 #000; /* Shadow tajam pixel */
+            top: 10%; font-size: 2.5rem; color: #FFD700; 
+            text-shadow: 4px 4px 0 #000; 
             transition: transform 0.1s;
         }
         .score-pop { transform: scale(1.3); }
@@ -71,24 +67,23 @@
 
         #loading-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #6dc2ca; z-index: 100;
+            background: #4fa4b8; z-index: 100;
             display: flex; justify-content: center; align-items: center; flex-direction: column;
-            color: white; font-size: 1rem; text-shadow: 2px 2px 0 #000;
+            color: white; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; line-height: 1.5; text-align: center;
         }
 
-        /* --- UI Elements (Pixel Style Buttons & Boxes) --- */
         #user-info {
             position: absolute; top: 15px; left: 15px; z-index: 70;
             display: flex; align-items: center; gap: 10px;
             background: #e4c684; padding: 8px; 
-            border: 4px solid #000; /* Border tebal pixel */
+            border: 4px solid #000;
             box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
             pointer-events: auto; display: none; color: #000; font-size: 0.6rem;
         }
         #user-avatar { width: 32px; height: 32px; border: 2px solid #000; image-rendering: pixelated; }
 
         .btn {
-            background: #ff7f50; /* Orange pixel */
+            background: #ff7f50; 
             border: 4px solid #000;
             box-shadow: 4px 4px 0 #000;
             color: white; padding: 16px 20px; font-size: 0.8rem;
@@ -122,8 +117,8 @@
         <canvas id="gameCanvas"></canvas>
         
         <div id="loading-screen">
-            <div style="margin-bottom: 10px;">PIXELATING...</div>
-            <div style="font-size:0.6rem;">Memuat Aset & Membuat Dunia</div>
+            <div style="font-size: 1.2rem; margin-bottom: 10px;">MEMUAT PIXEL...</div>
+            <div>Menata Sawah & Gunung</div>
         </div>
 
         <div class="ui-layer" id="score-display" style="display:none;">0</div>
@@ -316,7 +311,7 @@
     </script>
 
     <script>
-        // --- AUDIO ENGINE (Sound Effect Retro Sederhana) ---
+        // --- AUDIO ENGINE (Retro Chiptune) ---
         const AudioEngine = {
             ctx: null,
             init: function() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
@@ -325,7 +320,6 @@
                 const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
                 osc.connect(gain); gain.connect(this.ctx.destination); const now = this.ctx.currentTime;
                 
-                // Suara yang lebih "chiptune"
                 if (type === 'jump') {
                     osc.type = 'square'; 
                     osc.frequency.setValueAtTime(300, now); osc.frequency.linearRampToValueAtTime(600, now + 0.1);
@@ -347,14 +341,13 @@
 
         // --- GAME ENGINE ---
         const canvas = document.getElementById('gameCanvas');
-        // PENTING: Matikan smoothing untuk efek pixel yang tajam di kanvas utama
         const ctx = canvas.getContext('2d', { alpha: false }); 
+        // PENTING: Pastikan smoothing mati agar tajam
         ctx.imageSmoothingEnabled = false;
 
         const CONFIG = {
             gravity: 1200, jump: 360, speed: 170,
-            gap: 140, // Celah sedikit lebih besar
-            pipeW: 70 // Pipa batang kayu lebih lebar
+            gap: 140, pipeW: 70
         };
 
         const assets = {
@@ -386,19 +379,12 @@
                 assets.imgBirdUp = bUp; assets.imgBirdDown = bDown;
                 assets.imgRusa = rusa; assets.imgKelinci = kelinci; assets.imgDomba = domba;
 
-                // --- GENERATE PIXEL ART ASSETS ---
-                // Kita menggambar di kanvas kecil lalu diperbesar browser (image-rendering: pixelated)
-                // atau menggambar kotak-kotak "pixel" manual.
-                // Pendekatan di sini: Menggambar bentuk dengan gaya "blok" pada kanvas aset.
-
-                // 1. Batang Kayu Pixel
+                // --- GENERATE CLEAN PIXEL ASSETS ---
                 const cP = createAssetCanvas(CONFIG.pipeW, 600); drawPixelLog(cP.ctx, CONFIG.pipeW, 600); assets.pipe = cP.cvs;
-                // 2. Tanah Pixel
-                const cG = createAssetCanvas(480, 130); drawPixelGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
-                // 3. Background Jauh (Gunung & Langit Pixel)
-                const cC = createAssetCanvas(480, 640); drawPixelBgFar(cC.ctx, 480, 640); assets.bgFar = cC.cvs;
-                // 4. Background Tengah (Sawah & Hewan Pixel)
-                const cS = createAssetCanvas(480, 240); drawPixelBgMid(cS.ctx, 480, 240); assets.bgMid = cS.cvs;
+                const cG = createAssetCanvas(480, 130); drawCleanGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
+                const cC = createAssetCanvas(480, 640); drawCleanBgFar(cC.ctx, 480, 640); assets.bgFar = cC.cvs;
+                // Canvas Sawah Terasering
+                const cS = createAssetCanvas(480, 240); drawCleanBgMid(cS.ctx, 480, 240); assets.bgMid = cS.cvs;
 
                 document.getElementById('loading-screen').style.display = 'none';
                 document.getElementById('screen-start').style.display = 'flex';
@@ -413,139 +399,126 @@
         function createAssetCanvas(w, h) {
             const c = document.createElement('canvas'); c.width = w; c.height = h;
             const ctx = c.getContext('2d');
-            // PENTING: Matikan smoothing pada kanvas aset juga
             ctx.imageSmoothingEnabled = false; 
-            // Gunakan font pixel untuk tulisan di kanvas
             ctx.font = "16px 'Press Start 2P', cursive"; 
             return { cvs: c, ctx: ctx };
         }
 
-        // --- FUNGSI GAMBAR PIXEL ART ---
+        // --- FUNGSI GAMBAR PIXEL ART YANG BERSIH (CLEAN) ---
 
-        // Helper untuk menggambar "pixel besar" (blok warna)
         function drawPixelRect(ctx, x, y, w, h, color) {
             ctx.fillStyle = color; ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
         }
 
-        // 1. Batang Kayu Pixel (Log)
+        // 1. Batang Kayu Pixel (Log) - Tetap sama karena sudah cukup jelas
         function drawPixelLog(ctx, w, h) {
-            // Warna palet kayu retro
             const cDark = "#3a2416"; const cMed = "#633d26"; const cLight = "#8a5a3a"; const cHigh = "#b07d54";
-            
-            // Batang utama (Gradasi blok vertikal untuk kesan silinder)
-            drawPixelRect(ctx, 0, 0, w*0.2, h, cDark);   // Sisi gelap kiri
-            drawPixelRect(ctx, w*0.2, 0, w*0.3, h, cMed); // Tengah gelap
-            drawPixelRect(ctx, w*0.5, 0, w*0.3, h, cLight); // Tengah terang
-            drawPixelRect(ctx, w*0.8, 0, w*0.2, h, cHigh);  // Sisi terang kanan
-
-            // Tekstur kulit kayu (pixel noise)
-            for(let i=0; i<h; i+=8) { // Tiap 8 pixel vertikal
-                let noiseX = Math.random() * w * 0.8;
-                drawPixelRect(ctx, noiseX, i, 8, 4, cDark);
-                drawPixelRect(ctx, noiseX+4, i+2, 6, 4, cLight);
+            drawPixelRect(ctx, 0, 0, w*0.2, h, cDark);
+            drawPixelRect(ctx, w*0.2, 0, w*0.3, h, cMed);
+            drawPixelRect(ctx, w*0.5, 0, w*0.3, h, cLight);
+            drawPixelRect(ctx, w*0.8, 0, w*0.2, h, cHigh);
+            for(let i=0; i<h; i+=16) { 
+                drawPixelRect(ctx, Math.random()*w*0.8, i, 8, 4, cDark);
             }
-            
-            // Ujung Batang (Cincin Kayu di atas dan bawah)
             drawLogEnd(ctx, 0, w, cDark, cMed, cLight);
             drawLogEnd(ctx, h-20, w, cDark, cMed, cLight);
         }
         function drawLogEnd(ctx, y, w, c1, c2, c3) {
-            drawPixelRect(ctx, 0, y, w, 20, c1); // Dasar gelap
-            drawPixelRect(ctx, 4, y+4, w-8, 12, c2); // Cincin tengah
-            drawPixelRect(ctx, 12, y+8, w-24, 4, c3); // Pusat terang
+            drawPixelRect(ctx, 0, y, w, 20, c1);
+            drawPixelRect(ctx, 4, y+4, w-8, 12, c2);
+            drawPixelRect(ctx, 12, y+8, w-24, 4, c3);
         }
 
-        // 2. Tanah Pixel
-        function drawPixelGround(ctx, w, h) {
-            const P_SZ = 8; // Ukuran "pixel" tanah besar
-            // Lapisan Rumput Atas (Hijau Pixel)
-            for(let x=0; x<w; x+=P_SZ) {
-                drawPixelRect(ctx, x, 0, P_SZ, P_SZ, (x/P_SZ)%2==0 ? "#4ba84b" : "#5cb85c"); // Checkered green
-                drawPixelRect(ctx, x, P_SZ, P_SZ, P_SZ, "#4ba84b");
-            }
-            // Lapisan Tanah Bawah (Coklat Pixel)
-            for(let y=P_SZ*2; y<h; y+=P_SZ) {
-                for(let x=0; x<w; x+=P_SZ) {
-                   // Pola tanah acak sederhana
-                   let col = ((x+y)/P_SZ)%3 == 0 ? "#633d26" : "#8a5a3a";
-                   drawPixelRect(ctx, x, y, P_SZ, P_SZ, col);
-                }
-            }
-            // Batu pixel kecil
-            for(let i=0; i<10; i++) drawPixelRect(ctx, Math.random()*w, P_SZ*3 + Math.random()*(h-P_SZ*3), P_SZ, P_SZ, "#3a2416");
-        }
-
-        // 3. Background Jauh Pixel (Gunung & Langit Kaya)
-        function drawPixelBgFar(ctx, w, h) {
-            // Langit Bergradasi Pixel (Bands)
-            const skyCols = ["#4fa4b8", "#5cb8cc", "#6dc2ca", "#8adce3", "#aaeaf0"];
-            let bandH = h/skyCols.length;
-            skyCols.forEach((col, i) => drawPixelRect(ctx, 0, i*bandH, w, bandH, col));
-
-            // Awan Pixel (Blok putih tak beraturan)
-            drawPixelCloud(ctx, 50, 100, 80); drawPixelCloud(ctx, 280, 60, 100); drawPixelCloud(ctx, 180, 180, 60);
-
-            // Gunung Pixel Berlapis (Gaya siluet retro)
-            let gy = h - 200;
-            // Gunung Jauh (Biru/Ungu Gelap)
-            drawPixelMountain(ctx, w, gy-80, 120, "#4a4a8a", "#3a3a7a");
-            // Gunung Tengah (Teal Gelap)
-            drawPixelMountain(ctx, w, gy, 80, "#3a8a8a", "#2a7a7a");
-            // Gunung Dekat (Hijau Gelap)
-            drawPixelMountain(ctx, w, gy+80, 40, "#3a8a4a", "#2a7a3a");
-        }
-
-        function drawPixelCloud(ctx, x, y, s) {
-            ctx.fillStyle = "#ffffff";
-            // Gambar tumpukan kotak untuk membentuk awan
-            drawPixelRect(ctx, x, y, s, s/2, "#fff");
-            drawPixelRect(ctx, x+s/4, y-s/4, s/2, s/2, "#fff");
-            drawPixelRect(ctx, x+s/2, y, s/2, s/3, "#fff");
-            drawPixelRect(ctx, x-s/4, y+s/8, s/2, s/4, "#fff");
-        }
-
-        function drawPixelMountain(ctx, w, startY, peakH, cLight, cDark) {
-            const P_SZ = 16; // Blok gunung besar
-            let currentY = startY;
-            let goingUp = true;
-            for(let x=0; x<w; x+=P_SZ) {
-                if(goingUp) {
-                    currentY -= Math.random() * P_SZ;
-                    if(currentY < startY - peakH) goingUp = false;
-                } else {
-                    currentY += Math.random() * P_SZ;
-                    if(currentY > startY) goingUp = true;
-                }
-                // Gambar kolom gunung
-                drawPixelRect(ctx, x, currentY, P_SZ, 640-currentY, cLight);
-                // Tambah shading di sisi kanan
-                drawPixelRect(ctx, x+P_SZ/2, currentY+P_SZ, P_SZ/2, 640-(currentY+P_SZ), cDark);
-            }
-        }
-
-        // 4. Background Tengah Pixel (Sawah/Padang Rumput Kaya & Plang)
-        function drawPixelBgMid(ctx, w, h) {
+        // 2. Tanah Pixel (Pematang Sawah) - Lebih rapi
+        function drawCleanGround(ctx, w, h) {
             const P_SZ = 8;
-            // Padang Rumput Pixel (Pola selang-seling)
-            for(let y=0; y<h; y+=P_SZ) {
-                for(let x=0; x<w; x+=P_SZ) {
-                    // Pola kotak-kotak hijau
-                    let col = ((x/P_SZ)%2 + (y/P_SZ)%2)%2 == 0 ? "#5cb85c" : "#71c971";
-                    // Tambah variasi warna acak untuk "bunga/semak"
-                    if(Math.random() > 0.95) col = "#8fbc8f"; 
-                    drawPixelRect(ctx, x, y, P_SZ, P_SZ, col);
-                }
-            }
+            // Lapisan Rumput Atas (Pematang)
+            drawPixelRect(ctx, 0, 0, w, P_SZ*2, "#5cb85c");
+            for(let x=0; x<w; x+=P_SZ*2) drawPixelRect(ctx, x, 0, P_SZ, P_SZ, "#71c971");
+
+            // Lapisan Tanah Bawah (Tebing sawah)
+            drawPixelRect(ctx, 0, P_SZ*2, w, h-P_SZ*2, "#633d26");
+            for(let x=0; x<w; x+=P_SZ*4) drawPixelRect(ctx, x, P_SZ*3, P_SZ*2, P_SZ, "#8a5a3a");
+        }
+
+        // 3. Background Jauh (Langit & Gunung Geometris Bersih)
+        function drawCleanBgFar(ctx, w, h) {
+            // Langit: 3 Pita warna solid yang lebar (Bukan banyak pita kecil)
+            drawPixelRect(ctx, 0, 0, w, h*0.4, "#4fa4b8"); // Atas
+            drawPixelRect(ctx, 0, h*0.4, w, h*0.3, "#6dc2ca"); // Tengah
+            drawPixelRect(ctx, 0, h*0.7, w, h*0.3, "#aaeaf0"); // Bawah
+
+            // Awan Pixel Besar & Jelas
+            drawBigCloud(ctx, 80, 120, 100); 
+            drawBigCloud(ctx, 350, 80, 80); 
+            drawBigCloud(ctx, 250, 220, 60);
+
+            // Gunung Geometris (Bentuk Segitiga Solid Lapis Demi Lapis)
+            let gy = h - 180;
+            // Gunung Paling Jauh (Ungu Gelap)
+            drawTriangleMountain(ctx, 0, gy+50, w, 200, "#3a3a7a");
+            // Gunung Tengah (Teal Gelap)
+            drawTriangleMountain(ctx, -100, gy+80, w+200, 150, "#2a7a7a");
+            // Gunung Depan (Hijau Gelap)
+            drawTriangleMountain(ctx, -50, gy+120, w+100, 100, "#2a7a3a");
+        }
+
+        function drawBigCloud(ctx, x, y, s) {
+             ctx.fillStyle = "#ffffff";
+             let bs = s/4; // block size
+             // Awan bentuk tumpukan balok sederhana
+             drawPixelRect(ctx, x-bs*2, y, bs*4, bs, "#fff"); // Tengah
+             drawPixelRect(ctx, x-bs, y-bs, bs*2, bs, "#fff"); // Atas
+             drawPixelRect(ctx, x-bs*1.5, y+bs, bs*3, bs/2, "#fff"); // Bawah
+        }
+
+        function drawTriangleMountain(ctx, xStart, yBase, width, height, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(xStart, yBase);
+            ctx.lineTo(xStart + width/2, yBase - height); // Puncak
+            ctx.lineTo(xStart + width, yBase);
+            ctx.closePath();
+            ctx.fill();
+            // Tambah sedikit shading di sisi kanan (opsional, agar tidak terlalu datar)
+             ctx.fillStyle = "rgba(0,0,0,0.1)";
+             ctx.beginPath();
+             ctx.moveTo(xStart + width/2, yBase - height);
+             ctx.lineTo(xStart + width, yBase);
+             ctx.lineTo(xStart + width/2, yBase);
+             ctx.closePath();
+             ctx.fill();
+        }
+
+
+        // 4. Background Tengah (Sawah Terasering & Plang & Hewan)
+        function drawCleanBgMid(ctx, w, h) {
+            const P_SZ = 8;
             
-            // PLANG KAYU PIXEL "DOLAN SAWAH" PUTIH
+            // SAWAH TERASERING (Pita warna horizontal bergantian)
+            // Teras 1 (Jauh - Atas)
+            drawPixelRect(ctx, 0, 0, w, 60, "#71c971"); 
+            drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c"); // Batas pematang
+            
+            // Teras 2 (Tengah)
+            drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
+            drawPixelRect(ctx, 0, 135, w, 5, "#71c971"); // Batas pematang
+
+            // Teras 3 (Dekat - Bawah)
+            drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
+
+            // Jalan Tanah untuk Plang
+            drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a");
+            
+            
+            // PLANG KAYU PIXEL "DOLAN SAWAH" PUTIH (Di atas jalan tanah)
             const signX = 240; const signY = 60;
             // Tiang
             drawPixelRect(ctx, signX-40, signY+30, 16, 100, "#633d26");
             drawPixelRect(ctx, signX+24, signY+30, 16, 100, "#633d26");
-            // Papan (Miring sedikit dengan rotasi canvas manual atau gambar miring)
-            // Gambar papan lurus saja biar rapi ala pixel
-            ctx.fillStyle = "#b07d54"; ctx.fillRect(signX-80, signY-20, 160, 50); // Papan utama
-            ctx.fillStyle = "#8a5a3a"; ctx.fillRect(signX-75, signY-15, 150, 40); // Bagian dalam
+            // Papan 
+            ctx.fillStyle = "#b07d54"; ctx.fillRect(signX-80, signY-20, 160, 50);
+            ctx.fillStyle = "#8a5a3a"; ctx.fillRect(signX-75, signY-15, 150, 40);
             // Paku
             drawPixelRect(ctx, signX-70, signY, 8, 8, "#3a2416");
             drawPixelRect(ctx, signX+62, signY, 8, 8, "#3a2416");
@@ -553,40 +526,37 @@
             // TEXT PIXEL PUTIH
             ctx.fillStyle = "#ffffff"; 
             ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            // Shadow teks hitam tajam
             ctx.shadowColor = "#000000"; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2; ctx.shadowBlur = 0;
-            // Font sudah di-set di createAssetCanvas
             ctx.fillText("DOLAN SAWAH", signX, signY+5);
-            ctx.shadowColor = "transparent"; // Reset shadow
+            ctx.shadowColor = "transparent";
 
-            // --- SEBAR HEWAN DI BACKGROUND (Jauh & Dekat) ---
-            // Fungsi helper untuk menempatkan gambar external dengan skala
+            // --- PLACEMENT HEWAN (Di atas garis pematang agar terlihat menapak) ---
             const placeAnimal = (img, x, y, scale) => {
                 if(!img) return;
                 let sw = img.width * scale; let sh = img.height * scale;
-                // Gambar dengan posisi bawah (kaki) di y
+                // y adalah titik kaki berpijak
                 ctx.drawImage(img, x - sw/2, y - sh, sw, sh);
             };
 
-            // Hewan Jauh (Skala kecil, posisi Y lebih atas/jauh)
-            placeAnimal(assets.imgDomba, 100, 100, 0.3);
-            placeAnimal(assets.imgRusa, 380, 120, 0.4);
+            // Hewan Jauh (Di Teras 1)
+            placeAnimal(assets.imgDomba, 80, 55, 0.3);
+            placeAnimal(assets.imgRusa, 400, 58, 0.35);
             
-            // Hewan Sedang
-            placeAnimal(assets.imgKelinci, 280, 160, 0.5);
-            placeAnimal(assets.imgDomba, 50, 180, 0.6);
+            // Hewan Sedang (Di Teras 2)
+            placeAnimal(assets.imgKelinci, 320, 135, 0.5);
+            placeAnimal(assets.imgDomba, 120, 138, 0.55);
 
-            // Hewan Dekat (Skala besar, posisi Y lebih bawah/dekat)
-            placeAnimal(assets.imgRusa, 420, 220, 0.8);
-            placeAnimal(assets.imgKelinci, 150, 230, 0.7);
+            // Hewan Dekat (Di Teras 3 - Bawah)
+            placeAnimal(assets.imgRusa, 380, 220, 0.7);
+            placeAnimal(assets.imgKelinci, 80, 230, 0.6);
         }
 
-        // --- LOGIKA GAME (Tidak banyak berubah, hanya penyesuaian posisi) ---
+        // --- LOGIKA GAME ---
         const game = {
             state: 'START', score: 0,
             bird: { y: 0, v: 0, rot: 0 },
             pipes: [],
-            bgOff: 0, midOff: 0, groundOff: 0, // Ganti cityOff jadi midOff
+            bgOff: 0, midOff: 0, groundOff: 0,
             timeAccum: 0, graceTime: 0, lastJump: 0,  
             
             start: function() {
@@ -637,8 +607,8 @@
             else game.bird.rot = Math.min(1.2, game.bird.rot + 2.5 * dt);
 
             game.groundOff = (game.groundOff + CONFIG.speed * dt) % 480;
-            game.bgOff = (game.bgOff + CONFIG.speed * 0.02 * dt) % 480; // BG jauh sangat lambat
-            game.midOff = (game.midOff + CONFIG.speed * 0.1 * dt) % 480; // BG tengah sedang
+            game.bgOff = (game.bgOff + CONFIG.speed * 0.02 * dt) % 480; 
+            game.midOff = (game.midOff + CONFIG.speed * 0.1 * dt) % 480; 
 
             game.timeAccum += dt;
             if(game.timeAccum > 1.5) {
@@ -657,7 +627,6 @@
             const bX = 60; const bW = 30; const bH = 28;
             for(let i=0; i<game.pipes.length; i++) {
                 let p = game.pipes[i]; p.x -= CONFIG.speed * dt;
-                // Hitbox sedikit lebih longgar untuk batang kayu
                 if (bX + bW/2 > p.x + 4 && bX - bW/2 < p.x + CONFIG.pipeW - 4) {
                     if (game.bird.y - bH/2 < p.topH + 8 || game.bird.y + bH/2 > p.topH + CONFIG.gap - 8) {
                         if (game.graceTime <= 0) game.over();
@@ -678,42 +647,32 @@
             ctx.clearRect(0,0,canvas.width, canvas.height);
             let groundY = canvas.height - 130;
             
-            // 1. BG Jauh (Gunung & Langit Pixel) - Parallax Sangat Lambat
-            // Ambil bagian bawah kanvas bgFar agar gunung terlihat
+            // 1. BG Jauh (Gunung & Langit Clean Pixel)
             ctx.drawImage(assets.bgFar, 0, 640 - canvas.height, 480, canvas.height, 0, 0, canvas.width, canvas.height);
 
-            // 2. BG Tengah (Sawah & Hewan Pixel) - Parallax Sedang
+            // 2. BG Tengah (Sawah Terasering & Hewan)
             let mo = Math.floor(game.midOff);
-            let midY = groundY - 240 + 20; // Posisi di atas tanah
+            let midY = groundY - 240 + 20; 
             ctx.drawImage(assets.bgMid, -mo, midY); ctx.drawImage(assets.bgMid, 480-mo, midY);
             
-            // 3. Pipa Batang Kayu Pixel
+            // 3. Pipa Batang Kayu
             for(let p of game.pipes) {
                 let px = Math.floor(p.x);
                 ctx.save(); ctx.translate(px, p.topH); ctx.scale(1, -1); ctx.drawImage(assets.pipe, 0, 0); ctx.restore();
                 ctx.drawImage(assets.pipe, px, p.topH + CONFIG.gap);
             }
             
-            // 4. Tanah Pixel - Parallax Cepat
+            // 4. Tanah Clean Pixel
             let go = Math.floor(game.groundOff);
             ctx.drawImage(assets.ground, -go, groundY); ctx.drawImage(assets.ground, 480-go, groundY);
             
-            // 5. Burung (External Asset, tapi dirender pixelated)
+            // 5. Burung
             ctx.save(); ctx.translate(60, game.bird.y); ctx.rotate(game.bird.rot);
             if (game.graceTime > 0 && Math.floor(Date.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
-            
             let birdImg = assets.imgBirdUp;
-            if (game.state === 'PLAY') { 
-                if (game.bird.v > 100) birdImg = assets.imgBirdDown; 
-            } else { 
-                if (Math.sin(Date.now() / 200) > 0) birdImg = assets.imgBirdDown; 
-            }
-            
-            if(birdImg) {
-                // Gambar sedikit lebih besar agar pixelnya terlihat jelas
-                ctx.drawImage(birdImg, -30, -24, 60, 48); 
-            }
-            
+            if (game.state === 'PLAY') { if (game.bird.v > 100) birdImg = assets.imgBirdDown; } 
+            else { if (Math.sin(Date.now() / 200) > 0) birdImg = assets.imgBirdDown; }
+            if(birdImg) ctx.drawImage(birdImg, -30, -24, 60, 48); 
             ctx.restore(); ctx.globalAlpha = 1.0;
         }
 
@@ -736,7 +695,6 @@
         document.getElementById('btn-restart').onclick = () => { game.state = 'START'; showScreen('screen-start'); };
         function resize() { 
             canvas.width = stage.clientWidth; canvas.height = stage.clientHeight; 
-            // Pastikan smoothing tetap mati setelah resize
             ctx.imageSmoothingEnabled = false;
         }
         window.onresize = resize;
