@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dolan Aviary - Wing Tap Deluxe</title>
+    <title>Dolan Aviary - Cartoon Edition</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        /* Menggunakan font yang lebih "kartun" dan ramah */
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka+One&display=swap');
 
         /* --- BASE STYLES --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
@@ -13,7 +14,7 @@
             margin: 0; padding: 0;
             height: 100dvh; width: 100vw;
             background-color: #222;
-            font-family: 'Press Start 2P', cursive;
+            font-family: 'Fredoka One', cursive; /* Ganti font */
             overflow: hidden; touch-action: none; 
             display: flex; justify-content: center; align-items: center;
         }
@@ -26,27 +27,29 @@
             background: #87CEEB; 
         }
 
-        /* Pastikan canvas tajam untuk pixel art */
-        canvas { display: block; width: 100%; height: 100%; z-index: 1; image-rendering: pixelated; }
+        /* Hapus image-rendering: pixelated agar gambar halus */
+        canvas { display: block; width: 100%; height: 100%; z-index: 1; }
 
         /* --- UI LAYERS --- */
         .ui-layer { position: absolute; width: 100%; pointer-events: none; z-index: 50; text-align: center; }
         
         #score-display {
-            top: 10%; font-size: 3.5rem; color: #FFD700;
-            -webkit-text-stroke: 3px #4a3c00; text-shadow: 4px 4px 0 #000;
+            top: 10%; font-size: 4rem; color: #FFD700;
+            /* Stroke teks lebih tebal dan halus */
+            -webkit-text-stroke: 4px #8B4513; text-shadow: 5px 5px 0 rgba(0,0,0,0.3);
             transition: transform 0.1s;
         }
         .score-pop { transform: scale(1.3); }
 
         #tutorial-hint {
-            top: 50%; width: 100%;
-            font-size: 0.7rem; color: #fff;
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000;
+            top: 55%; width: 100%;
+            font-size: 1rem; color: #fff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
             animation: pulse 1.5s infinite;
             display: none;
+            letter-spacing: 1px;
         }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }
 
         #flash-overlay {
             position: absolute; top:0; left:0; width:100%; height:100%;
@@ -56,61 +59,51 @@
 
         .screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(4px);
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); /* Blur lebih kuat */
             display: flex; flex-direction: column; 
             justify-content: center; align-items: center;
             z-index: 60; display: none;
         }
 
-        /* --- USER PROFILE --- */
+        /* --- UI Elements (Profile, Buttons, Leaderboard) updated for cartoon look --- */
         #user-info {
             position: absolute; top: 15px; left: 15px; z-index: 70;
             display: flex; align-items: center; gap: 10px;
-            background: rgba(255,255,255,0.95); padding: 6px 12px; border-radius: 8px;
-            border: 3px solid #543847; box-shadow: 4px 4px 0 #000;
-            pointer-events: auto; display: none;
+            background: #FFF8DC; padding: 8px 14px; border-radius: 20px;
+            border: 3px solid #8B4513; box-shadow: 0 4px 0 rgba(0,0,0,0.2);
+            pointer-events: auto; display: none; color: #543847;
         }
-        #user-avatar { width: 32px; height: 32px; border-radius: 4px; border: 2px solid #543847; }
-        #user-name { color: #543847; font-size: 0.7rem; max-width: 120px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #loc-badge { font-size: 0.5rem; color: #777; display: block; margin-top: 4px; }
+        #user-avatar { width: 32px; height: 32px; border-radius: 50%; border: 2px solid #8B4513; }
+        #user-name { font-size: 0.8rem; }
 
-        /* --- BUTTONS --- */
         .btn {
-            background: #E86101; border: 3px solid #fff;
-            box-shadow: 0 6px 0 #000; color: white;
-            padding: 16px 24px; font-size: 0.9rem;
-            font-family: inherit; cursor: pointer;
-            border-radius: 12px; margin: 10px;
+            background: linear-gradient(to bottom, #FF7F50, #E86101); /* Gradien tombol */
+            border: none; border-radius: 25px;
+            box-shadow: 0 6px 0 #A04000, 0 8px 10px rgba(0,0,0,0.3);
+            color: white; padding: 16px 24px; font-size: 1rem;
+            font-family: inherit; cursor: pointer; margin: 10px;
             text-transform: uppercase; width: 85%; max-width: 300px;
-            pointer-events: auto; position: relative; text-shadow: 2px 2px 0 #000;
+            pointer-events: auto; position: relative; text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+            transition: all 0.1s;
         }
-        .btn:active { top: 6px; box-shadow: 0 0 0 #000; transform: scale(0.98); }
-        .btn-google { background: #4285F4; border-color: #fff; }
-        .btn-green { background: #73BF2E; box-shadow: 0 6px 0 #3a6b0e; border-color: #d4ffaa; }
+        .btn:active { top: 6px; box-shadow: 0 0 0 #A04000, 0 2px 5px rgba(0,0,0,0.3); }
+        .btn-google { background: linear-gradient(to bottom, #4285F4, #3367D6); box-shadow: 0 6px 0 #2a56c6, 0 8px 10px rgba(0,0,0,0.3); }
+        .btn-green { background: linear-gradient(to bottom, #73BF2E, #5FA026); box-shadow: 0 6px 0 #4d821f, 0 8px 10px rgba(0,0,0,0.3); }
 
-        /* --- LEADERBOARD --- */
         .lb-container {
-            width: 90%; max-width: 340px; background: #F4E7C5;
-            border: 4px solid #8B4513; border-radius: 12px;
+            width: 90%; max-width: 340px; background: #FFF8DC;
+            border: 4px solid #8B4513; border-radius: 15px;
             padding: 12px; margin-bottom: 20px; pointer-events: auto;
-            box-shadow: 6px 6px 0 #000;
+            box-shadow: 0 8px 0 rgba(0,0,0,0.2);
         }
-        .tabs { display: flex; gap: 8px; margin-bottom: 12px; }
         .tab {
-            flex: 1; padding: 10px; font-size: 0.6rem; cursor: pointer;
-            background: #D2B48C; border: 3px solid #8B4513; color: #543847; text-align: center;
-            border-radius: 8px 8px 0 0; box-shadow: 0 4px 0 #5c3a21;
+            flex: 1; padding: 10px; font-size: 0.7rem; cursor: pointer;
+            background: #DEB887; border: 2px solid #8B4513; color: #8B4513; text-align: center;
+            border-radius: 12px 12px 0 0; margin: 0 2px;
         }
-        .tab.active { background: #E86101; color: white; border-color: #fff; box-shadow: 0 4px 0 #000; transform: translateY(2px); }
-
-        #lb-list { height: 180px; overflow-y: auto; background: #fff; border: 3px solid #8B4513; padding: 8px; border-radius: 0 0 8px 8px; }
-        .lb-row {
-            display: flex; justify-content: space-between; padding: 8px;
-            border-bottom: 2px dashed #ccc; font-size: 0.6rem; color: #333;
-        }
-        .lb-row:nth-child(1) { background: #fff5cc; font-weight: bold; color: #d35400; }
-        .lb-city { font-size: 0.5rem; color: #888; margin-left: 5px; }
-        .lb-me { background-color: #dbe4ff !important; border: 2px solid #4285F4; }
+        .tab.active { background: #E86101; color: white; border-bottom: none; transform: translateY(2px); }
+        #lb-list { height: 180px; overflow-y: auto; background: #fff; border: 2px solid #8B4513; border-radius: 0 0 12px 12px; padding: 8px; }
+        .lb-row { font-family: sans-serif; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -130,28 +123,27 @@
         </div>
 
         <div id="screen-start" class="screen" style="display: flex;">
-            <h1 style="color:#FFD700; -webkit-text-stroke:3px #005580; text-shadow:6px 6px 0 #000; font-size:2.5rem; text-align:center; margin-bottom:20px; line-height: 1.2; letter-spacing: -2px;">
+            <h1 style="color:#FFD700; -webkit-text-stroke:4px #004466; text-shadow:8px 8px 0 rgba(0,0,0,0.2); font-size:3.5rem; text-align:center; margin-bottom:20px; line-height: 1.1; transform: rotate(-3deg);">
                 DOLAN<br>AVIARY
             </h1>
             
             <div id="login-section" style="width:100%; text-align:center;">
-                <p style="color:#fff; font-size:0.6rem; margin-bottom:15px; text-shadow: 2px 2px 0 #000;">Login untuk Simpan Skor</p>
+                <p style="color:#fff; font-size:0.9rem; margin-bottom:15px; text-shadow: 2px 2px 4px #000;">Login untuk Simpan Skor</p>
                 <button class="btn btn-google" id="btn-login">🔑 Login Google</button>
-                <br>
                 <button class="btn btn-green" id="btn-guest">Main Tanpa Login</button>
             </div>
             
             <div id="play-section" style="display:none; text-align:center; width: 100%;">
-                <button class="btn btn-green" id="btn-start" style="font-size: 1.2rem;">START ▶</button>
-                <button class="btn" id="btn-logout" style="background:#777; width:auto; font-size:0.7rem; padding: 12px 18px; border-color:#ccc; box-shadow: 0 6px 0 #444;">Logout</button>
+                <button class="btn btn-green" id="btn-start" style="font-size: 1.4rem; padding: 20px 30px;">START ▶</button>
+                <button class="btn" id="btn-logout" style="background:#777; box-shadow: 0 6px 0 #555; width:auto; font-size:0.8rem; padding: 12px 18px;">Logout</button>
             </div>
         </div>
 
         <div id="screen-over" class="screen">
-            <h2 style="color:#E86101; -webkit-text-stroke:2px #fff; text-shadow:4px 4px 0 #000; font-size:2.2rem; margin-bottom:15px;">GAME OVER</h2>
-            <div style="background:#F4E7C5; border:4px solid #8B4513; padding:15px; border-radius:12px; width:140px; text-align:center; margin-bottom:20px; box-shadow: 6px 6px 0 #000;">
-                <div style="font-size:0.7rem; color:#8B4513; margin-bottom: 5px;">SKOR</div>
-                <div id="final-score" style="font-size:2.2rem; color:#E86101; -webkit-text-stroke:2px #fff; text-shadow: 3px 3px 0 #000;">0</div>
+            <h2 style="color:#FF6B6B; -webkit-text-stroke:3px #8B0000; text-shadow:4px 4px 0 rgba(0,0,0,0.2); font-size:3rem; margin-bottom:15px; transform: rotate(2deg);">GAME OVER</h2>
+            <div style="background:#FFF8DC; border:4px solid #8B4513; padding:15px 25px; border-radius:20px; text-align:center; margin-bottom:20px; box-shadow: 0 8px 0 rgba(0,0,0,0.2);">
+                <div style="font-size:1rem; color:#8B4513; margin-bottom: 5px;">SKOR KAMU</div>
+                <div id="final-score" style="font-size:3.5rem; color:#E86101; -webkit-text-stroke:2px #fff; text-shadow: 3px 3px 0 rgba(0,0,0,0.3);">0</div>
             </div>
             <div class="lb-container">
                 <div class="tabs">
@@ -159,10 +151,10 @@
                     <div class="tab" id="tab-local">LOKAL</div>
                 </div>
                 <div id="lb-list">
-                    <div style="text-align:center; padding:20px; font-size:0.6rem; color:#888;">Memuat...</div>
+                    <div style="text-align:center; padding:20px; font-size:0.8rem; color:#888;">Memuat...</div>
                 </div>
             </div>
-            <button class="btn btn-green" id="btn-restart" style="font-size: 1rem;">MAIN LAGI ↺</button>
+            <button class="btn btn-green" id="btn-restart" style="font-size: 1.2rem;">MAIN LAGI ↺</button>
         </div>
     </div>
 
@@ -249,7 +241,7 @@
 
         function loadLeaderboard() {
             if(unsubscribe) unsubscribe();
-            lbList.innerHTML = '<div style="text-align:center; padding:20px; font-size:0.6rem;">Memuat...</div>';
+            lbList.innerHTML = '<div style="text-align:center; padding:20px; font-size:0.8rem;">Memuat...</div>';
 
             let q;
             const ref = collection(db, "leaderboard");
@@ -263,7 +255,7 @@
             unsubscribe = onSnapshot(q, (snapshot) => {
                 lbList.innerHTML = "";
                 if(snapshot.empty) {
-                    lbList.innerHTML = `<div style="text-align:center; padding:20px; font-size:0.6rem;">Belum ada skor.</div>`;
+                    lbList.innerHTML = `<div style="text-align:center; padding:20px; font-size:0.8rem;">Belum ada skor.</div>`;
                     return;
                 }
                 let rank = 1;
@@ -308,274 +300,276 @@
     </script>
 
     <script>
-        // --- AUDIO ENGINE (WEB AUDIO API) ---
+        // --- AUDIO ENGINE (WEB AUDIO API) - Sedikit diperhalus ---
         const AudioEngine = {
             ctx: null,
-            init: function() {
-                if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            },
+            init: function() { if(!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)(); },
             play: function(type) {
-                if(!this.ctx) return;
-                if(this.ctx.state === 'suspended') this.ctx.resume();
-                
-                const osc = this.ctx.createOscillator();
-                const gain = this.ctx.createGain();
-                osc.connect(gain);
-                gain.connect(this.ctx.destination);
-                const now = this.ctx.currentTime;
+                if(!this.ctx) return; if(this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator(); const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination); const now = this.ctx.currentTime;
                 
                 if (type === 'jump') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(350, now + 0.1);
-                    gain.gain.setValueAtTime(0.15, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
-                    osc.start(now); osc.stop(now + 0.15);
+                    osc.type = 'sine'; // Ganti ke sine agar lebih lembut
+                    osc.frequency.setValueAtTime(200, now); osc.frequency.exponentialRampToValueAtTime(450, now + 0.15);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
                 } else if (type === 'score') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(880, now); osc.frequency.setValueAtTime(1100, now + 0.1);
-                    gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.type = 'triangle'; 
+                    osc.frequency.setValueAtTime(600, now); osc.frequency.setValueAtTime(800, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
                     osc.start(now); osc.stop(now + 0.3);
                 } else if (type === 'hit') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.linearRampToValueAtTime(30, now + 0.4);
-                    gain.gain.setValueAtTime(0.3, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now); osc.stop(now + 0.4);
+                    osc.type = 'sawtooth'; 
+                    osc.frequency.setValueAtTime(150, now); osc.frequency.exponentialRampToValueAtTime(50, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now); gain.gain.linearRampToValueAtTime(0, now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
                 }
             }
         };
 
         // --- GAME ENGINE ---
         const canvas = document.getElementById('gameCanvas');
-        const ctx = canvas.getContext('2d', { alpha: false, desynchronized: true });
+        // Hapus desynchronized agar tidak flickering pada beberapa device saat menggambar kurva kompleks
+        const ctx = canvas.getContext('2d', { alpha: false }); 
 
         const CONFIG = {
-            gravity: 1100, jump: 340, speed: 160,
-            gap: 125, // Celah sedikit diperbesar untuk merak yang lebih besar
-            pipeW: 56 // Pipa (batang pohon) sedikit lebih lebar
+            gravity: 1200, jump: 360, speed: 170,
+            gap: 135, // Celah lebih besar untuk karakter kartun
+            pipeW: 65 // Pipa pohon lebih lebar
         };
 
         const assets = {};
 
-        // Fungsi helper untuk menggambar pixel rect dengan cepat
-        function drawPix(ctx, x, y, w, h, color) {
-            ctx.fillStyle = color; ctx.fillRect(Math.round(x), Math.round(y), w, h);
-        }
-
         function initAssets() {
-            // Canvas ukuran lebih besar untuk detail merak
-            const cB1 = createAssetCanvas(48, 36); drawFancyPeacock(cB1.ctx, 0); assets.birdUp = cB1.cvs;
-            const cB2 = createAssetCanvas(48, 36); drawFancyPeacock(cB2.ctx, 1); assets.birdDown = cB2.cvs;
+            // Canvas ukuran lebih besar untuk detail kartun tinggi
+            const cB1 = createAssetCanvas(64, 48); drawCartoonPeacock(cB1.ctx, 0); assets.birdUp = cB1.cvs;
+            const cB2 = createAssetCanvas(64, 48); drawCartoonPeacock(cB2.ctx, 1); assets.birdDown = cB2.cvs;
             
-            // Batang Pohon Detail
-            const cP = createAssetCanvas(CONFIG.pipeW, 600); drawFancyLog(cP.ctx); assets.pipe = cP.cvs;
+            // Batang Pohon Kartun
+            const cP = createAssetCanvas(CONFIG.pipeW, 600); drawCartoonTree(cP.ctx); assets.pipe = cP.cvs;
             
-            // Tanah Sawah Detail
-            const cG = createAssetCanvas(480, 120); drawFancyGround(cG.ctx); assets.ground = cG.cvs;
+            // Tanah Sawah Kartun
+            const cG = createAssetCanvas(480, 130); drawCartoonGround(cG.ctx); assets.ground = cG.cvs;
             
-            // Background Sawah Jauh (Sky, Mountains, Teks)
-            const cC = createAssetCanvas(480, 300); drawFancyBgFar(cC.ctx); assets.bgFar = cC.cvs;
+            // Background Jauh (Langit Penuh & Gunung) - Tinggi kanvas ditambah agar langit penuh
+            const cC = createAssetCanvas(480, 640); drawCartoonBgFar(cC.ctx); assets.bgFar = cC.cvs;
             
-            // Background Tengah (Sawah, Jalan, Hewan)
-            const cS = createAssetCanvas(480, 150); drawFancyBgMid(cS.ctx); assets.bgMid = cS.cvs;
+            // Background Tengah (Sawah, Plang Kayu, Hewan Kartun)
+            const cS = createAssetCanvas(480, 200); drawCartoonBgMid(cS.ctx); assets.bgMid = cS.cvs;
         }
 
         function createAssetCanvas(w, h) {
             const c = document.createElement('canvas'); c.width = w; c.height = h;
-            c.getContext('2d').font = "20px 'Press Start 2P'"; 
+            // Gunakan font kartun untuk plang nanti
+            c.getContext('2d').font = "bold 18px 'Fredoka One', sans-serif"; 
             return { cvs: c, ctx: c.getContext('2d') };
         }
 
-        // --- TOTAL VISUAL OVERHAUL: PROCEDURAL PIXEL ART ---
+        // --- VISUAL OVERHAUL: CARTOON VECTORS (No More Pixel Art) ---
+        // Fungsi helper untuk membuat bentuk bulat dengan bayangan
+        function drawRoundedRect(ctx, x, y, w, h, r, fill, stroke) {
+            ctx.beginPath(); ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y); ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+            ctx.lineTo(x+w, y+h-r); ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h); ctx.lineTo(x+r, y+h);
+            ctx.quadraticCurveTo(x, y+h, x, y+h-r); ctx.lineTo(x, y+r); ctx.quadraticCurveTo(x, y, x+r, y);
+            ctx.closePath(); if(fill) { ctx.fillStyle = fill; ctx.fill(); } if(stroke) { ctx.strokeStyle = stroke; ctx.stroke(); }
+        }
 
-        // 1. Merak Sultan (Fancy Peacock)
-        function drawFancyPeacock(ctx, state) {
-            // state 0: Wings Up, state 1: Wings Down/Flap
-            
-            // Ekor Kipas (The Train) - Lapisan Belakang
-            const tailCX = 20; const tailCY = 20;
-            const tailColors = ["#004d26", "#006633", "#008040"]; // Hijau zamrud gradasi
-            
-            // Gambar kipas dasar dengan "piksel" besar
-            for(let r=18; r>8; r-=2) {
-                ctx.fillStyle = tailColors[(r%6)/2];
-                ctx.beginPath(); ctx.ellipse(tailCX, tailCY, r, r*0.9, 0, Math.PI*0.15, Math.PI*1.85); ctx.fill();
-            }
+        // 1. Merak Kartun (Cartoon Peacock)
+        function drawCartoonPeacock(ctx, state) {
+            ctx.save(); ctx.translate(32, 24); // Pusat di tengah kanvas
 
-            // Detail "Mata" Ekor (Ocelli) - Pixel Art
-            const eyePos = [
-                {a:0.4, r:14}, {a:0.8, r:16}, {a:1.2, r:15}, {a:1.6, r:14},
-                {a:0.6, r:10}, {a:1.0, r:11}, {a:1.4, r:10}
-            ];
+            // Ekor Kipas Besar (Layer Belakang)
+            const tailGrad = ctx.createRadialGradient(0, 5, 5, 0, 0, 30);
+            tailGrad.addColorStop(0, "#00A86B"); tailGrad.addColorStop(1, "#004d26");
+            ctx.fillStyle = tailGrad;
+            ctx.beginPath(); ctx.ellipse(0, 0, 28, 24, 0, Math.PI*0.1, Math.PI*1.9); ctx.fill();
+            
+            // "Mata" Ekor (Ocelli) - Lingkaran konsentris
+            const eyePos = [{a:0.4,r:20},{a:0.8,r:22},{a:1.2,r:21},{a:1.6,r:20},{a:0.6,r:14},{a:1.0,r:15},{a:1.4,r:14}];
             eyePos.forEach(p => {
-                let ex = tailCX + Math.cos(p.a)*p.r; let ey = tailCY + Math.sin(p.a)*p.r;
-                drawPix(ctx, ex-3, ey-3, 6, 6, "#C8A116"); // Emas luar
-                drawPix(ctx, ex-2, ey-2, 4, 4, "#0044AA"); // Biru tengah
-                drawPix(ctx, ex-1, ey-1, 2, 2, "#001133"); // Pupil gelap
+                ctx.save(); ctx.translate(Math.cos(p.a)*p.r, Math.sin(p.a)*p.r);
+                ctx.fillStyle="#C8A116"; ctx.beginPath(); ctx.arc(0,0,5,0,Math.PI*2); ctx.fill(); // Emas
+                ctx.fillStyle="#0044AA"; ctx.beginPath(); ctx.arc(0,0,3.5,0,Math.PI*2); ctx.fill(); // Biru
+                ctx.fillStyle="#000033"; ctx.beginPath(); ctx.arc(0,0,1.5,0,Math.PI*2); ctx.fill(); // Gelap
+                ctx.restore();
             });
 
-            // Tubuh Biru Kerajaan
-            let bodyY = 14;
-            // Leher & Dada
-            drawPix(ctx, 28, bodyY-4, 6, 8, "#003399"); // Biru tua
-            drawPix(ctx, 30, bodyY+2, 8, 10, "#0044BB"); // Badan biru tengah
+            // Tubuh & Leher (Bentuk kurva)
+            const bodyGrad = ctx.createLinearGradient(-10, -10, 10, 15);
+            bodyGrad.addColorStop(0, "#0055CC"); bodyGrad.addColorStop(1, "#002266");
+            ctx.fillStyle = bodyGrad;
+            ctx.beginPath();
+            ctx.moveTo(0, -12); // Kepala belakang
+            ctx.quadraticCurveTo(8, -10, 12, 5); // Leher depan ke dada
+            ctx.quadraticCurveTo(10, 18, 0, 15); // Perut bawah
+            ctx.quadraticCurveTo(-8, 12, -6, 0); // Punggung
+            ctx.lineTo(0, -12); ctx.fill();
 
-            // Kepala
-            drawPix(ctx, 32, bodyY-8, 6, 6, "#0055CC");
-            // Jambul Mahkota
-            drawPix(ctx, 34, bodyY-12, 2, 4, "#00CCFF"); drawPix(ctx, 32, bodyY-11, 6, 2, "#00CCFF");
-            // Wajah
-            drawPix(ctx, 36, bodyY-7, 2, 2, "#FFF"); // Mata
-            drawPix(ctx, 38, bodyY-6, 4, 2, "#FFD700"); // Paruh Emas
+            // Kepala & Wajah
+            ctx.beginPath(); ctx.arc(2, -14, 6, 0, Math.PI*2); ctx.fill();
+            // Jambul
+            ctx.strokeStyle = "#00CCFF"; ctx.lineWidth = 2; ctx.beginPath();
+            ctx.moveTo(2,-18); ctx.lineTo(0,-24); ctx.moveTo(4,-17); ctx.lineTo(5,-23); ctx.stroke();
+            ctx.fillStyle="#00CCFF"; ctx.beginPath(); ctx.arc(0,-24,1.5,0,Math.PI*2); ctx.arc(5,-23,1.5,0,Math.PI*2); ctx.fill();
+            // Mata & Paruh
+            ctx.fillStyle="#FFF"; ctx.beginPath(); ctx.ellipse(4, -15, 2.5, 2, 0, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle="#000"; ctx.beginPath(); ctx.arc(5, -15, 1, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle="#FFD700"; ctx.beginPath(); ctx.moveTo(7,-13); ctx.lineTo(12,-11); ctx.lineTo(7,-9); ctx.fill();
 
             // Sayap (Animasi)
-            ctx.fillStyle = "#002266"; // Biru sayap gelap
+            ctx.fillStyle = "#003399";
+            ctx.beginPath();
             if(state === 0) { // Glide
-                drawPix(ctx, 30, bodyY+4, 10, 6, "#002266");
-            } else { // Flap (sedikit lebih rendah dan padat)
-                 drawPix(ctx, 30, bodyY+6, 10, 6, "#002266");
-                 drawPix(ctx, 32, bodyY+8, 6, 2, "#001133");
+                ctx.ellipse(4, 2, 8, 5, Math.PI/4, 0, Math.PI*2);
+            } else { // Flap (sayap turun)
+                ctx.ellipse(4, 6, 8, 5, -Math.PI/6, 0, Math.PI*2);
             }
+            ctx.fill(); ctx.restore();
         }
 
-        // 2. Batang Pohon Realistis (Fancy Log)
-        function drawFancyLog(ctx) {
+        // 2. Pohon Kartun (Cartoon Tree Pipe)
+        function drawCartoonTree(ctx) {
             let w = CONFIG.pipeW;
-            // Warna dasar kulit kayu
-            ctx.fillStyle = "#5C4033"; ctx.fillRect(0,0,w,600);
+            // Batang Kayu dengan Gradien & Tekstur
+            const barkGrad = ctx.createLinearGradient(0,0,w,0);
+            barkGrad.addColorStop(0, "#4A2511"); barkGrad.addColorStop(0.5, "#6B3E23"); barkGrad.addColorStop(1, "#3D1E0E");
+            ctx.fillStyle = barkGrad; ctx.fillRect(0,0,w,600);
             
-            // Tekstur Kulit Kayu (Noise Vertikal)
-            for(let i=0; i<w; i+=2) {
-                let shade = Math.random() > 0.5 ? "#4A3329" : "#6B4D3D";
-                ctx.fillStyle = shade;
-                for(let j=0; j<600; j+=4) {
-                     if(Math.random()>0.3) ctx.fillRect(i, j, 2, 4 + Math.random()*4);
-                }
-            }
-            // Simpul Kayu (Knots)
-            for(let k=0; k<6; k++) {
-                let ky = Math.random()*600; let kx = Math.random()*(w-10);
-                drawPix(ctx, kx, ky, 8, 6, "#3E2A22");
-                drawPix(ctx, kx+2, ky+2, 4, 2, "#2D1E18");
+            // Garis serat kayu
+            ctx.strokeStyle = "rgba(0,0,0,0.2)"; ctx.lineWidth = 2;
+            ctx.beginPath(); for(let i=10; i<w; i+=15) { ctx.moveTo(i,0); ctx.lineTo(i+Math.random()*5-2.5, 600); } ctx.stroke();
+
+            // Lubang Kayu (Knots)
+            for(let k=0; k<4; k++) {
+                let ky = 100 + Math.random()*400; let kx = w/2 + Math.random()*10-5;
+                ctx.fillStyle = "#2A150A"; ctx.beginPath(); ctx.ellipse(kx, ky, 8, 12, Math.random()*0.5, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = "#1A0A05"; ctx.beginPath(); ctx.ellipse(kx, ky+2, 5, 7, Math.random()*0.5, 0, Math.PI*2); ctx.fill();
             }
 
-            // Dedaunan Rimbun di Pinggir (Cluster Pixel)
+            // Dedaunan Rimbun (Gugusan Lingkaran)
             const leafColors = ["#228B22", "#006400", "#32CD32"];
-            for(let y=0; y<600; y+=25) {
+            for(let y=-20; y<620; y+=30) {
                 // Kiri
-                let clusterSize = 10 + Math.random()*8;
-                for(let l=0; l<clusterSize; l++) {
-                    let lx = -Math.random()*10; let ly = y + Math.random()*20 - 10;
-                    drawPix(ctx, lx, ly, 4, 4, leafColors[Math.floor(Math.random()*3)]);
-                }
+                drawLeafCluster(ctx, -15, y, leafColors);
                 // Kanan
-                clusterSize = 10 + Math.random()*8;
-                for(let l=0; l<clusterSize; l++) {
-                    let lx = w + Math.random()*6; let ly = y + Math.random()*20 - 10;
-                     drawPix(ctx, lx, ly, 4, 4, leafColors[Math.floor(Math.random()*3)]);
-                }
+                drawLeafCluster(ctx, w-5, y, leafColors);
             }
-            
-            // Ujung Batang (Potongan kayu)
-            ctx.fillStyle = "#8B5A2B"; ctx.fillRect(0,0,w,8); ctx.fillRect(0,592,w,8);
-            ctx.fillStyle = "#A07040"; ctx.fillRect(2,2,w-4,4); ctx.fillRect(2,594,w-4,4);
+            // Ujung Batang
+            ctx.fillStyle = "#5C3A21"; ctx.fillRect(0,0,w,10); ctx.fillRect(0,590,w,10);
+            ctx.fillStyle = "#8B5A2B"; ctx.fillRect(5,5,w-10,5); ctx.fillRect(5,590,w-10,5);
         }
-
-        // 3. Tanah Sawah Detail (Fancy Ground)
-        function drawFancyGround(ctx) {
-             // Lapisan Tanah & Rumput
-             drawPix(ctx, 0, 0, 480, 20, "#4A3329"); // Tanah gelap atas
-             drawPix(ctx, 0, 5, 480, 8, "#5C4033"); // Tanah tengah
-             drawPix(ctx, 0, 0, 480, 6, "#228B22"); // Rumput atas
-             
-             // Tekstur Rumput Pixel
-             for(let i=0; i<480; i+=4) {
-                 drawPix(ctx, i, 2, 2, 4, "#32CD32"); // Highlight rumput
-                 if(Math.random()>0.7) drawPix(ctx, i, 6, 2, 2, "#7CFC00"); // Bunga kecil/batu
-             }
-
-             // Bagian Bawah (Tanah Basah)
-             drawPix(ctx, 0, 20, 480, 100, "#3E2A22");
-             // Garis-garis strata tanah
-             for(let y=24; y<120; y+=8) {
-                  drawPix(ctx, 0, y, 480, 2, "#2D1E18");
-             }
-        }
-
-        // 4. Background Jauh: Langit, Gunung, Teks
-        function drawFancyBgFar(ctx) {
-            // Langit Gradien Biru
-            const skyGrad = ctx.createLinearGradient(0,0,0,200);
-            skyGrad.addColorStop(0, "#4FA4FF"); // Biru langit atas
-            skyGrad.addColorStop(1, "#A0D2FF"); // Biru muda cakrawala
-            ctx.fillStyle = skyGrad; ctx.fillRect(0,0,480,250);
-
-            // Awan Pixel
-            ctx.fillStyle = "#FFFFFFAA";
-            for(let c=0; c<5; c++) {
-                let cx = Math.random()*480; let cy = Math.random()*100;
-                drawPix(ctx, cx, cy, 30, 10); drawPix(ctx, cx+10, cy-5, 20, 15); drawPix(ctx, cx-5, cy+5, 20, 8);
+        function drawLeafCluster(ctx, x, y, colors) {
+            for(let i=0; i<5; i++) {
+                ctx.fillStyle = colors[i%3]; ctx.beginPath();
+                ctx.arc(x + Math.random()*20-10, y + Math.random()*25-12.5, 10+Math.random()*5, 0, Math.PI*2);
+                ctx.fill();
             }
-
-            // Gunung Berlayer (Perspektif Atmosfer)
-            // Gunung Jauh (Biru pudar)
-            ctx.fillStyle = "#6080A0"; ctx.beginPath(); ctx.moveTo(0,220); ctx.lineTo(100,150); ctx.lineTo(250,180); ctx.lineTo(480,140); ctx.lineTo(480,250); ctx.lineTo(0,250); ctx.fill();
-            // Gunung Dekat (Hijau tua)
-            ctx.fillStyle = "#2E473B"; ctx.beginPath(); ctx.moveTo(0,250); ctx.lineTo(150,190); ctx.lineTo(300,220); ctx.lineTo(480,180); ctx.lineTo(480,300); ctx.lineTo(0,300); ctx.fill();
-
-            // Teks "DOLAN AVIARY" Pixel Emas Ber-outline
-            ctx.textAlign = "center";
-            ctx.font = "24px 'Press Start 2P'";
-            // Outline Hitam
-            ctx.fillStyle = "#000";
-            for(let xo=-2; xo<=2; xo+=2) { for(let yo=-2; yo<=2; yo+=2) { ctx.fillText("DOLAN AVIARY", 240+xo, 80+yo); } }
-            // Isi Emas Gradasi (Simulasi)
-            ctx.fillStyle = "#FFD700"; ctx.fillText("DOLAN AVIARY", 240, 80);
-            ctx.fillStyle = "#FFFFAA"; ctx.fillText("DOLAN AVIARY", 240, 78); // Highlight atas
         }
 
-        // 5. Background Tengah: Sawah Basah, Jalan, Hewan
-        function drawFancyBgMid(ctx) {
-            // Sawah Terasering dengan Pantulan Air
+        // 3. Tanah Kartun (Cartoon Ground)
+        function drawCartoonGround(ctx) {
+            // Lapisan Rumput Atas dengan Highlight
+            const grassGrad = ctx.createLinearGradient(0,0,0,20);
+            grassGrad.addColorStop(0, "#4CBB17"); grassGrad.addColorStop(1, "#3A8F11");
+            ctx.fillStyle = grassGrad; ctx.fillRect(0,0,480,25);
+            // Detail rumput kecil
+            ctx.strokeStyle = "#7CFC00"; ctx.lineWidth=2; ctx.beginPath();
+            for(let i=0;i<480;i+=10) { ctx.moveTo(i,5); ctx.lineTo(i+3,0); ctx.moveTo(i+2,7); ctx.lineTo(i+5,2); } ctx.stroke();
+
+            // Lapisan Tanah Bawah
+            const dirtGrad = ctx.createLinearGradient(0,25,0,130);
+            dirtGrad.addColorStop(0, "#5C4033"); dirtGrad.addColorStop(1, "#3E2A22");
+            ctx.fillStyle = dirtGrad; ctx.fillRect(0,25,480,105);
             
-            // Teras Atas
-            drawPix(ctx, 0, 0, 480, 40, "#4D6633"); // Pematang
-            drawPix(ctx, 0, 5, 480, 30, "#5B8C5B"); // Air sawah keruh
-            // Pantulan sederhana di air
-            ctx.fillStyle = "#77A877"; for(let i=0; i<480; i+=20) drawPix(ctx, i, 10+Math.random()*10, 15, 2);
-
-            // Teras Bawah (Lebih dekat)
-            drawPix(ctx, 0, 40, 480, 50, "#3D5229"); // Pematang
-            drawPix(ctx, 0, 45, 480, 40, "#4C994C"); // Air sawah lebih hijau
-            ctx.fillStyle = "#66B366"; for(let i=0; i<480; i+=15) drawPix(ctx, i, 50+Math.random()*15, 10, 3);
-
-            // Jalan Setapak Bertekstur
-            drawPix(ctx, 0, 90, 480, 30, "#8B5A2B"); // Coklat tanah
-            for(let i=0; i<480; i+=8) {
-                 drawPix(ctx, i, 90+Math.random()*25, 4, 2, "#A07040"); // Kerikil terang
-                 drawPix(ctx, i+4, 90+Math.random()*25, 2, 2, "#5C3A21"); // Kerikil gelap
+            // Batu & Tekstur Tanah
+            for(let i=0; i<20; i++) {
+                ctx.fillStyle = "rgba(0,0,0,0.15)";
+                ctx.beginPath(); ctx.arc(Math.random()*480, 40+Math.random()*80, 4+Math.random()*6, 0, Math.PI*2); ctx.fill();
             }
-            drawPix(ctx, 0, 90, 480, 2, "#5C3A21"); // Garis pinggir jalan
-
-            // --- Pixel Animals (Sprites 16x16-ish) ---
-            
-            // Rusa (Deer) - Coklat
-            let dx = 60; let dy = 85;
-            drawPix(ctx, dx, dy, 16, 12, "#8B4513"); // Badan
-            drawPix(ctx, dx+12, dy-6, 8, 8, "#A0522D"); // Kepala
-            drawPix(ctx, dx+18, dy-4, 2, 2, "#000"); // Mata
-            drawPix(ctx, dx+14, dy-12, 2, 6, "#D2B48C"); drawPix(ctx, dx+18, dy-12, 2, 6, "#D2B48C"); // Tanduk
-            drawPix(ctx, dx+2, dy+12, 2, 6, "#5C3A21"); drawPix(ctx, dx+12, dy+12, 2, 6, "#5C3A21"); // Kaki
-
-            // Kelinci (Rabbit) - Putih Lompat
-            let rx = 220; let ry = 95;
-            drawPix(ctx, rx, ry, 12, 10, "#E0E0E0"); // Badan
-            drawPix(ctx, rx+10, ry-4, 6, 6, "#F0F0F0"); // Kepala
-            drawPix(ctx, rx+10, ry-10, 2, 6, "#FFC0CB"); drawPix(ctx, rx+13, ry-10, 2, 6, "#FFC0CB"); // Telinga pink
-
-            // Ayam (Chicken) - Montok
-            let cx = 380; let cy = 90;
-            drawPix(ctx, cx, cy, 12, 12, "#FFF8DC"); // Badan putih gading
-            drawPix(ctx, cx+10, cy+2, 4, 4, "#FFD700"); // Paruh
-            drawPix(ctx, cx+8, cy-4, 4, 4, "#FF0000"); // Jengger
-            drawPix(ctx, cx+2, cy+12, 2, 2, "#FF8C00"); drawPix(ctx, cx+8, cy+12, 2, 2, "#FF8C00"); // Kaki
         }
 
+        // 4. Background Jauh Kartun (Langit Penuh & Gunung)
+        function drawCartoonBgFar(ctx) {
+            // Langit Gradien Penuh (Atas sampai Bawah layar)
+            const skyGrad = ctx.createLinearGradient(0,0,0,640);
+            skyGrad.addColorStop(0, "#2EB5E5"); // Biru cerah atas
+            skyGrad.addColorStop(0.6, "#87CEEB"); // Biru muda tengah
+            skyGrad.addColorStop(1, "#C0E0F0"); // Biru pucat cakrawala
+            ctx.fillStyle = skyGrad; ctx.fillRect(0,0,480,640);
+
+            // Awan Kartun (Bentuk bulat tumpang tindih)
+            ctx.fillStyle = "rgba(255,255,255,0.8)";
+            drawCloud(ctx, 100, 150, 60); drawCloud(ctx, 350, 80, 50); drawCloud(ctx, 250, 250, 40);
+
+            // Gunung Kartun (Bentuk kurva halus)
+            let gy = 640 - 280; // Posisi dasar gunung dari bawah
+            // Gunung Jauh
+            ctx.fillStyle = "#6080A0"; ctx.beginPath(); ctx.moveTo(0,gy+100);
+            ctx.quadraticCurveTo(100, gy-50, 200, gy+20); ctx.quadraticCurveTo(350, gy-80, 480, gy+50);
+            ctx.lineTo(480, 640); ctx.lineTo(0, 640); ctx.fill();
+            // Gunung Dekat
+            ctx.fillStyle = "#4A6B5A"; ctx.beginPath(); ctx.moveTo(0,gy+150);
+            ctx.quadraticCurveTo(150, gy+50, 300, gy+120); ctx.quadraticCurveTo(400, gy+80, 480, gy+180);
+            ctx.lineTo(480, 640); ctx.lineTo(0, 640); ctx.fill();
+        }
+        function drawCloud(ctx, x, y, s) {
+            ctx.beginPath(); ctx.arc(x, y, s*0.8, 0, Math.PI*2);
+            ctx.arc(x+s*0.7, y-s*0.3, s*0.6, 0, Math.PI*2); ctx.arc(x-s*0.7, y-s*0.3, s*0.6, 0, Math.PI*2);
+            ctx.arc(x+s*0.4, y+s*0.2, s*0.5, 0, Math.PI*2); ctx.fill();
+        }
+
+        // 5. Background Tengah Kartun (Sawah, Plang Kayu, Hewan)
+        function drawCartoonBgMid(ctx) {
+            // Sawah Berair dengan Pantulan
+            const fieldGrad = ctx.createLinearGradient(0,0,0,200);
+            fieldGrad.addColorStop(0, "#6B8E23"); fieldGrad.addColorStop(0.5, "#556B2F"); fieldGrad.addColorStop(1, "#3D5229");
+            ctx.fillStyle = fieldGrad; ctx.fillRect(0,0,480,200);
+            
+            // Pantulan air kartun (garis bergelombang transparan)
+            ctx.strokeStyle = "rgba(255,255,255,0.2)"; ctx.lineWidth = 3; ctx.beginPath();
+            for(let y=20; y<200; y+=30) {
+                ctx.moveTo(0, y); for(let x=0; x<480; x+=20) { ctx.quadraticCurveTo(x+10, y+Math.sin(x)*5, x+20, y); }
+            } ctx.stroke();
+
+            // --- PLANG KAYU "DOLAN AVIARY" (Objek Fisik di Sawah) ---
+            const signX = 240; const signY = 80;
+            // Tiang Penyangga
+            ctx.fillStyle = "#5C3A21"; ctx.fillRect(signX-60, signY+30, 15, 90); ctx.fillRect(signX+45, signY+30, 15, 90);
+            
+            // Papan Plang Kayu (Rounded Rect dengan tekstur)
+            ctx.save(); ctx.translate(signX, signY); ctx.rotate(-0.05); // Sedikit miring
+            const woodGrad = ctx.createLinearGradient(-80,0,80,0); woodGrad.addColorStop(0, "#DEB887"); woodGrad.addColorStop(1, "#CD853F");
+            drawRoundedRect(ctx, -90, -30, 180, 60, 10, woodGrad, "#8B4513");
+            // Paku
+            ctx.fillStyle="#5C3A21"; ctx.beginPath(); ctx.arc(-75,0,4,0,Math.PI*2); ctx.arc(75,0,4,0,Math.PI*2); ctx.fill();
+            
+            // Teks pada Plang (Seperti dicat)
+            ctx.fillStyle = "#3E2A22"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.shadowColor = "rgba(255,255,255,0.4)"; ctx.shadowOffsetX=1; ctx.shadowOffsetY=1;
+            ctx.fillText("DOLAN AVIARY", 0, 2);
+            ctx.restore();
+
+            // --- HEWAN KARTUN (Bentuk Vektor Sederhana) ---
+            
+            // Rusa Kartun
+            ctx.fillStyle = "#A0522D"; ctx.beginPath(); ctx.ellipse(60, 160, 18, 12, 0, 0, Math.PI*2); ctx.fill(); // Badan
+            ctx.beginPath(); ctx.circle(75, 150, 10); ctx.fill(); // Kepala
+            ctx.fillStyle = "#3E2A22"; ctx.fillRect(50, 170, 4, 10); ctx.fillRect(70, 170, 4, 10); // Kaki
+            ctx.strokeStyle = "#D2B48C"; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(78,145); ctx.lineTo(85,135); ctx.moveTo(72,145); ctx.lineTo(65,135); ctx.stroke(); // Tanduk
+
+            // Kelinci Kartun
+            ctx.fillStyle = "#F0F0F0"; ctx.beginPath(); ctx.ellipse(220, 175, 14, 10, 0, 0, Math.PI*2); ctx.fill(); // Badan
+            ctx.beginPath(); ctx.circle(232, 168, 8); ctx.fill(); // Kepala
+            ctx.fillStyle = "#FFC0CB"; ctx.beginPath(); ctx.ellipse(230, 160, 3, 8, -0.2, 0, Math.PI*2); ctx.ellipse(236, 160, 3, 8, 0.2, 0, Math.PI*2); ctx.fill(); // Telinga
+
+            // Ayam Kartun
+            ctx.fillStyle = "#FFEC8B"; ctx.beginPath(); ctx.circle(380, 170, 12); ctx.fill(); // Badan bulat
+            ctx.fillStyle = "#FF4500"; ctx.beginPath(); ctx.arc(388, 165, 5, 0, Math.PI*2); ctx.fill(); // Kepala merah
+            ctx.fillStyle = "#FFD700"; ctx.beginPath(); ctx.moveTo(392,165); ctx.lineTo(398,168); ctx.lineTo(392,171); ctx.fill(); // Paruh
+        }
+        // Helper untuk menggambar lingkaran cepat
+        CanvasRenderingContext2D.prototype.circle = function(x,y,r) { this.arc(x,y,r,0,Math.PI*2); }
         // --- END FUNGSI GAMBAR BARU ---
 
         const game = {
@@ -588,20 +582,20 @@
             start: function() {
                 resize(); AudioEngine.init(); 
                 this.state = 'PLAY';
-                this.bird.y = canvas.height / 2; this.bird.v = 0; this.bird.rot = 0;
+                this.bird.y = canvas.height / 2 - 50; this.bird.v = 0; this.bird.rot = 0;
                 this.pipes = []; this.score = 0; this.timeAccum = 0;
-                this.graceTime = 1.2; this.lastJump = 0;
+                this.graceTime = 1.5; this.lastJump = 0;
                 document.getElementById('score-display').innerText = 0;
                 document.getElementById('score-display').style.display = 'block'; 
                 document.getElementById('tutorial-hint').style.display = 'block';
-                setTimeout(() => document.getElementById('tutorial-hint').style.display = 'none', 2500);
+                setTimeout(() => document.getElementById('tutorial-hint').style.display = 'none', 3000);
                 showScreen(null);
             },
             
             over: function() {
                 AudioEngine.play('hit'); this.state = 'OVER';
                 const flash = document.getElementById('flash-overlay');
-                flash.style.opacity = 0.8; setTimeout(() => flash.style.opacity = 0, 100);
+                flash.style.opacity = 0.6; setTimeout(() => flash.style.opacity = 0, 150);
                 document.getElementById('final-score').innerText = this.score;
                 showScreen('screen-over');
                 if(window.saveScore) window.saveScore(this.score);
@@ -615,12 +609,13 @@
 
         let lastTime = performance.now();
         function loop(timestamp) {
-            const dt = Math.min((timestamp - lastTime) / 1000, 0.1); lastTime = timestamp;
+            const dt = Math.min((timestamp - lastTime) / 1000, 0.06); // Batasi dt agar fisika stabil
+            lastTime = timestamp;
             if (game.state === 'PLAY') updatePhysics(dt);
             else if (game.state === 'START') {
-                game.groundOff = (game.groundOff + CONFIG.speed * dt) % 24; // Texture repeat 24px
-                game.cityOff = (game.cityOff + CONFIG.speed * 0.1 * dt) % 480;
-                game.bird.y = canvas.height/2 + Math.sin(timestamp/250)*12; // Gerakan hover lebih besar
+                game.groundOff = (game.groundOff + CONFIG.speed * dt) % 480;
+                game.cityOff = (game.cityOff + CONFIG.speed * 0.05 * dt) % 480;
+                game.bird.y = canvas.height/2 - 50 + Math.sin(timestamp/300)*15;
             }
             draw(dt); requestAnimationFrame(loop);
         }
@@ -628,34 +623,34 @@
         function updatePhysics(dt) {
             if (game.graceTime > 0) game.graceTime -= dt;
             game.bird.v += CONFIG.gravity * dt; game.bird.y += game.bird.v * dt;
-            if(game.bird.v < 0) game.bird.rot = -0.35;
-            else { game.bird.rot += 2.5 * dt; if(game.bird.rot > 1.0) game.bird.rot = 1.0; }
+            // Rotasi lebih halus
+            if(game.bird.v < 0) game.bird.rot = Math.max(-0.4, game.bird.rot - 3 * dt);
+            else game.bird.rot = Math.min(1.2, game.bird.rot + 2.5 * dt);
 
-            game.groundOff = (game.groundOff + CONFIG.speed * dt) % 24;
-            game.bgOff = (game.bgOff + CONFIG.speed * 0.4 * dt) % 480; 
-            game.cityOff = (game.cityOff + CONFIG.speed * 0.08 * dt) % 480; 
+            game.groundOff = (game.groundOff + CONFIG.speed * dt) % 480;
+            game.bgOff = (game.bgOff + CONFIG.speed * 0.3 * dt) % 480; 
+            game.cityOff = (game.cityOff + CONFIG.speed * 0.05 * dt) % 480; 
 
             game.timeAccum += dt;
-            if(game.timeAccum > 1.45) { // Interval sedikit lebih cepat
+            if(game.timeAccum > 1.5) {
                 game.timeAccum = 0;
-                let groundY = canvas.height - 120; let minSafe = 70; let maxSafe = groundY - CONFIG.gap - 70;
+                let groundY = canvas.height - 130; let minSafe = 80; let maxSafe = groundY - CONFIG.gap - 80;
                 let h;
                 if(game.pipes.length === 0) h = Math.floor(Math.random() * (maxSafe - minSafe + 1) + minSafe);
                 else {
                     let prevH = game.pipes[game.pipes.length - 1].topH;
-                    let change = (Math.random() * 240 * 2) - 240; h = prevH + change;
+                    let change = (Math.random() * 250 * 2) - 250; h = prevH + change;
                     if (h < minSafe) h = minSafe; if (h > maxSafe) h = maxSafe;
                 }
                 game.pipes.push({ x: canvas.width, topH: h, passed: false });
             }
 
-            // Hitbox disesuaikan untuk merak yang lebih besar (agak kotak)
-            const bX = 60; const bW = 24; const bH = 20;
+            // Hitbox yang lebih ketat untuk bentuk kartun
+            const bX = 60; const bW = 30; const bH = 28;
             for(let i=0; i<game.pipes.length; i++) {
                 let p = game.pipes[i]; p.x -= CONFIG.speed * dt;
-                // Hitbox collision yang lebih forgiving (kotak vs kotak)
-                if (bX + bW/2 > p.x + 5 && bX - bW/2 < p.x + CONFIG.pipeW - 5) {
-                    if (game.bird.y - bH/2 < p.topH + 8 || game.bird.y + bH/2 > p.topH + CONFIG.gap - 8) {
+                if (bX + bW/2 > p.x + 8 && bX - bW/2 < p.x + CONFIG.pipeW - 8) {
+                    if (game.bird.y - bH/2 < p.topH + 12 || game.bird.y + bH/2 > p.topH + CONFIG.gap - 12) {
                         if (game.graceTime <= 0) game.over();
                     }
                 }
@@ -667,44 +662,41 @@
                 }
                 if (p.x < -CONFIG.pipeW) { game.pipes.shift(); i--; }
             }
-            if(game.bird.y >= canvas.height - 120 - 18) game.over();
+            if(game.bird.y >= canvas.height - 130 - 20) game.over();
         }
 
         function draw(dt) {
-            ctx.fillStyle = "#87CEEB"; ctx.fillRect(0,0, canvas.width, canvas.height);
-            let groundY = canvas.height - 120;
+            ctx.clearRect(0,0,canvas.width, canvas.height);
+            let groundY = canvas.height - 130;
             
-            // Draw Far BG (Langit, Gunung, Teks)
-            let co = Math.floor(game.cityOff);
-            ctx.drawImage(assets.bgFar, -co, groundY - 280); ctx.drawImage(assets.bgFar, 480-co, groundY - 280);
-            
-            // Draw Mid BG (Sawah Basah, Hewan)
+            // 1. BG Jauh (Langit & Gunung) - Digambar sekali memenuhi layar
+            // Kita ambil bagian bawah dari kanvas bgFar yang tinggi
+            ctx.drawImage(assets.bgFar, 0, 640 - canvas.height, 480, canvas.height, 0, 0, canvas.width, canvas.height);
+
+            // 2. BG Tengah (Sawah, Plang, Hewan) - Parallax lambat
             let bo = Math.floor(game.bgOff);
-            ctx.drawImage(assets.bgMid, -bo, groundY - 110); ctx.drawImage(assets.bgMid, 480-bo, groundY - 110);
+            // Posisi Y disesuaikan agar pas di atas tanah
+            let midY = groundY - 200 + 20; 
+            ctx.drawImage(assets.bgMid, -bo, midY); ctx.drawImage(assets.bgMid, 480-bo, midY);
             
-            // Draw Pipes (Pohon Detail)
+            // 3. Pipa Pohon
             for(let p of game.pipes) {
                 let px = Math.floor(p.x);
                 ctx.save(); ctx.translate(px, p.topH); ctx.scale(1, -1); ctx.drawImage(assets.pipe, 0, 0); ctx.restore();
                 ctx.drawImage(assets.pipe, px, p.topH + CONFIG.gap);
             }
             
-            // Draw Ground (Tanah Bertekstur)
+            // 4. Tanah - Parallax cepat
             let go = Math.floor(game.groundOff);
-            // Menggunakan pola repeat 24px
-            for(let i=-1; i<Math.ceil(canvas.width/24)+1; i++) { ctx.drawImage(assets.ground, 0,0,24,120, i*24 - go, groundY, 24, 120); }
+            ctx.drawImage(assets.ground, -go, groundY); ctx.drawImage(assets.ground, 480-go, groundY);
             
-            // Draw Bird (Merak Sultan)
+            // 5. Merak
             ctx.save(); ctx.translate(60, game.bird.y); ctx.rotate(game.bird.rot);
             if (game.graceTime > 0 && Math.floor(Date.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
-            
             let birdAsset = assets.birdUp;
-            // Logika animasi sayap
-            if (game.state === 'PLAY') { if (game.bird.v < -50 || Math.sin(Date.now() / 40) > 0.5) birdAsset = assets.birdDown; } 
-            else { if (Math.sin(Date.now() / 250) > 0) birdAsset = assets.birdDown; }
-            
-            // Offset pusat gambar merak
-            ctx.drawImage(birdAsset, -24, -18);
+            if (game.state === 'PLAY') { if (game.bird.v < -50 || Math.sin(Date.now() / 50) > 0.5) birdAsset = assets.birdDown; } 
+            else { if (Math.sin(Date.now() / 200) > 0) birdAsset = assets.birdDown; }
+            ctx.drawImage(birdAsset, -32, -24); // Offset setengah dari ukuran kanvas burung (64x48)
             ctx.restore(); ctx.globalAlpha = 1.0;
         }
 
@@ -713,7 +705,7 @@
             if(game.state === 'START') game.start();
             else if(game.state === 'PLAY') {
                 const now = Date.now();
-                if (now - game.lastJump > 120) { 
+                if (now - game.lastJump > 100) { 
                     game.bird.v = -CONFIG.jump; game.lastJump = now;
                     AudioEngine.play('jump'); document.getElementById('tutorial-hint').style.display = 'none';
                 }
@@ -729,7 +721,7 @@
         window.onresize = resize;
         
         // Delay init agar font termuat sempurna
-        setTimeout(() => { initAssets(); resize(); requestAnimationFrame(loop); }, 500);
+        setTimeout(() => { initAssets(); resize(); requestAnimationFrame(loop); }, 1000);
     </script>
 </body>
 </html>
