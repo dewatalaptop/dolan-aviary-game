@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dolan Sawah - Final Fix</title>
+    <title>Dolan Sawah - Final Fixes Placement</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -117,7 +117,7 @@
         
         <div id="loading-screen">
             <div style="font-size: 1.2rem; margin-bottom: 10px;">MEMUAT GAME...</div>
-            <div>Mengecilkan Hewan Raksasa<br>Menyiapkan Gunung & Plang</div>
+            <div>Mengatur Posisi Gunung & Plang</div>
         </div>
 
         <div class="ui-layer" id="score-display" style="display:none;">0</div>
@@ -463,36 +463,31 @@
             drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
             drawPixelRect(ctx, 0, 135, w, 5, "#71c971");
             drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
-            drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a");
+            
+            // --- PERBAIKAN 1: MENGHILANGKAN KOTAK COKLAT DI BELAKANG PLANG ---
+            // Baris di bawah ini dikomentari agar jalan tanah tidak tergambar
+            // drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a"); 
 
             // --- HELPER SAKTI: FORCE RESIZE ---
-            // Fungsi ini memaksa gambar jadi kecil (sesuai targetH) tidak peduli seberapa besar aslinya
             const plantResized = (img, xCenter, yBottom, targetH) => {
                 if(!img) return;
-                let ratio = img.width / img.height; // Hitung rasio aspek asli
-                let newH = targetH;                 // Paksa tinggi jadi target (misal 40px)
-                let newW = newH * ratio;            // Lebar menyesuaikan
-                
-                // Gambar dengan ukuran baru (Anti Raksasa)
+                let ratio = img.width / img.height; 
+                let newH = targetH;                 
+                let newW = newH * ratio;            
                 ctx.drawImage(img, xCenter - newW / 2, yBottom - newH, newW, newH);
             };
 
             // 2. Gambar PLANG BARU (Dikecilkan paksa jadi tinggi 80px)
             if (assets.imgPlang) {
-                 // Plang ditaruh di tengah jalan (x=240), kaki di tanah (y=150)
+                 // Plang ditaruh di tengah (x=240), kaki di tanah (y=150)
                  plantResized(assets.imgPlang, 240, 150, 90);
             }
 
-            // 3. Gambar HEWAN (Dikecilkan paksa jadi 30-50px)
-            // Teras 1 (Jauh)
+            // 3. Gambar HEWAN (Dikecilkan paksa jadi 30-60px)
             plantResized(assets.imgDomba, 80, 58, 30);
             plantResized(assets.imgRusa, 420, 58, 35);
-            
-            // Teras 2 (Tengah)
             plantResized(assets.imgKelinci, 340, 138, 40);
             plantResized(assets.imgDomba, 100, 138, 45);
-
-            // Teras 3 (Dekat)
             plantResized(assets.imgRusa, 380, 230, 60);
             plantResized(assets.imgKelinci, 60, 230, 45);
         }
@@ -500,13 +495,10 @@
         // --- HELPER UNTUK TILING/LOOPING ---
         function drawLayer(ctx, img, speedOffset, yPos, imgW, imgH) {
             if(!img) return;
-            // Jika imgW tidak ditentukan, pakai lebar kanvas (agar fit width) atau lebar gambar asli yang sudah diresize
             let drawW = imgW || img.width;
             let drawH = imgH || img.height;
-            
             const numTiles = Math.ceil(canvas.width / drawW) + 1;
             const offsetMod = Math.floor(speedOffset % drawW);
-            
             for (let i = 0; i < numTiles; i++) {
                 let xPos = (i * drawW) - offsetMod;
                 ctx.drawImage(img, xPos, yPos, drawW, drawH);
@@ -622,13 +614,14 @@
             
             // 3. GUNUNG BARU (Tiling Loop)
             if(assets.bgFarImage) {
-                 // Gambar gunung dipaksa ukurannya agar tidak raksasa tapi tetap lebar
-                 // Kita set tinggi gunung misal 200px, lebarnya menyesuaikan rasio
+                 // Dipaksa tinggi 250px agar tidak terlalu besar
                  let mH = 250; 
                  let ratio = assets.bgFarImage.width / assets.bgFarImage.height;
                  let mW = mH * ratio;
-                 // Gambar layer gunung
-                 drawLayer(ctx, assets.bgFarImage, game.bgOff, groundY - mH + 20, mW, mH);
+                 
+                 // --- PERBAIKAN 2: POSISI GUNUNG DINAIKKAN ---
+                 // Posisi Y dikurangi 80 pixel dari garis horizon agar naik ke atas
+                 drawLayer(ctx, assets.bgFarImage, game.bgOff, groundY - mH - 80, mW, mH);
             }
 
             // 4. SAWAH + HEWAN + PLANG (Yang sudah di-resize di 'drawCleanBgMid')
