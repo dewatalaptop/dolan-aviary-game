@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Dolan Sawah - Fixed Size</title>
+    <title>Dolan Aviary - New Assets</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
 
@@ -22,7 +22,7 @@
             width: 100%; max-width: 480px; height: 100%;
             overflow: hidden;
             box-shadow: 0 0 50px rgba(0,0,0,0.8);
-            background: #4fa4b8;
+            background: #87CEEB; /* LANGIT LEBIH CERAH */
         }
 
         canvas { 
@@ -66,9 +66,9 @@
 
         #loading-screen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: #4fa4b8; z-index: 100;
+            background: #87CEEB; z-index: 100; /* Langit cerah saat loading */
             display: flex; justify-content: center; align-items: center; flex-direction: column;
-            color: white; font-size: 0.8rem; text-shadow: 2px 2px 0 #000; line-height: 1.5; text-align: center;
+            color: #2c3e50; font-size: 0.8rem; text-shadow: 1px 1px 0 #fff; line-height: 1.5; text-align: center;
         }
 
         #user-info {
@@ -116,8 +116,8 @@
         <canvas id="gameCanvas"></canvas>
         
         <div id="loading-screen">
-            <div style="font-size: 1.2rem; margin-bottom: 10px;">MEMUAT PIXEL...</div>
-            <div>Mengecilkan Hewan Raksasa</div>
+            <div style="font-size: 1.2rem; margin-bottom: 10px;">MEMUAT ASET BARU...</div>
+            <div>Menyiapkan Gunung & Plang</div>
         </div>
 
         <div class="ui-layer" id="score-display" style="display:none;">0</div>
@@ -347,8 +347,10 @@
             gap: 140, pipeW: 70
         };
 
+        // Aset sekarang menampung gambar langsung untuk BG dan Plang
         const assets = {
-            pipe: null, ground: null, bgFar: null, bgMid: null,
+            pipe: null, ground: null, bgMid: null,
+            bgFarImage: null, imgPlang: null, // NEW: Gambar Gunung & Plang
             imgBirdUp: null, imgBirdDown: null, imgRusa: null, imgKelinci: null, imgDomba: null
         };
 
@@ -357,7 +359,10 @@
             birdDown: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766581827/IMG_7775_teoy4m.png',
             rusa: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583160/IMG_7781_s5gqsi.png',
             kelinci: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583166/IMG_7780_fdrcyi.png',
-            domba: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583165/IMG_7782_f6h4cq.png'
+            domba: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583165/IMG_7782_f6h4cq.png',
+            // NEW URLS
+            bgMountain: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589093/IMG_7792_oyfsqc.png',
+            plang: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589101/IMG_7793_y4fyap.png'
         };
 
         function loadImg(url) {
@@ -369,18 +374,22 @@
 
         async function initAllAssets() {
             try {
-                const [bUp, bDown, rusa, kelinci, domba] = await Promise.all([
+                // Load semua gambar termasuk yang baru
+                const [bUp, bDown, rusa, kelinci, domba, mtn, plangImg] = await Promise.all([
                     loadImg(imageURLs.birdUp), loadImg(imageURLs.birdDown),
-                    loadImg(imageURLs.rusa), loadImg(imageURLs.kelinci), loadImg(imageURLs.domba)
+                    loadImg(imageURLs.rusa), loadImg(imageURLs.kelinci), loadImg(imageURLs.domba),
+                    loadImg(imageURLs.bgMountain), loadImg(imageURLs.plang)
                 ]);
                 assets.imgBirdUp = bUp; assets.imgBirdDown = bDown;
                 assets.imgRusa = rusa; assets.imgKelinci = kelinci; assets.imgDomba = domba;
+                // Simpan gambar baru ke assets
+                assets.bgFarImage = mtn;
+                assets.imgPlang = plangImg;
 
                 const cP = createAssetCanvas(CONFIG.pipeW, 600); drawPixelLog(cP.ctx, CONFIG.pipeW, 600); assets.pipe = cP.cvs;
                 const cG = createAssetCanvas(480, 130); drawCleanGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
-                const cC = createAssetCanvas(480, 640); drawCleanBgFar(cC.ctx, 480, 640); assets.bgFar = cC.cvs;
                 
-                // BG Tengah (Sawah + Hewan)
+                // Canvas untuk BG Tengah (Sawah) tetap dibuat prosedural, tapi nanti plangnya pakai gambar
                 const cS = createAssetCanvas(480, 240); drawCleanBgMid(cS.ctx, 480, 240); assets.bgMid = cS.cvs;
 
                 document.getElementById('loading-screen').style.display = 'none';
@@ -397,7 +406,6 @@
             const c = document.createElement('canvas'); c.width = w; c.height = h;
             const ctx = c.getContext('2d');
             ctx.imageSmoothingEnabled = false; 
-            ctx.font = "16px 'Press Start 2P', cursive"; 
             return { cvs: c, ctx: ctx };
         }
 
@@ -431,87 +439,66 @@
             for(let x=0; x<w; x+=P_SZ*4) drawPixelRect(ctx, x, P_SZ*3, P_SZ*2, P_SZ, "#8a5a3a");
         }
 
-        function drawCleanBgFar(ctx, w, h) {
-            drawPixelRect(ctx, 0, 0, w, h*0.4, "#4fa4b8"); 
-            drawPixelRect(ctx, 0, h*0.4, w, h*0.3, "#6dc2ca");
-            drawPixelRect(ctx, 0, h*0.7, w, h*0.3, "#aaeaf0");
+        // NEW: FUNGSI AWAN YANG LEBIH BAIK
+        function drawBetterClouds(ctx, scrollX) {
+             // Awan parallax sederhana - bergerak sedikit lebih cepat dari gunung
+             const cloudPos = (scrollX * 0.5);
+             const canvasW = ctx.canvas.width;
 
-            drawBigCloud(ctx, 80, 120, 100); 
-            drawBigCloud(ctx, 350, 80, 80); 
-            drawBigCloud(ctx, 250, 220, 60);
+             // Set Awan 1 (Atas)
+             drawFluffyCloud(ctx, (100 - cloudPos) % canvasW + (cloudPos > 100 ? canvasW : 0), 100, 60);
+             drawFluffyCloud(ctx, (350 - cloudPos) % canvasW + (cloudPos > 350 ? canvasW : 0), 80, 50);
 
-            let gy = h - 180;
-            drawTriangleMountain(ctx, 0, gy+50, w, 200, "#3a3a7a");
-            drawTriangleMountain(ctx, -100, gy+80, w+200, 150, "#2a7a7a");
-            drawTriangleMountain(ctx, -50, gy+120, w+100, 100, "#2a7a3a");
+             // Set Awan 2 (Bawah, sedikit beda kecepatan)
+             const cloudPos2 = (scrollX * 0.4);
+             drawFluffyCloud(ctx, (250 - cloudPos2) % canvasW + (cloudPos2 > 250 ? canvasW : 0), 160, 40);
+             drawFluffyCloud(ctx, (500 - cloudPos2) % canvasW + (cloudPos2 > 500 ? canvasW : 0), 140, 45);
         }
 
-        function drawBigCloud(ctx, x, y, s) {
-             ctx.fillStyle = "#ffffff";
-             let bs = s/4; 
-             drawPixelRect(ctx, x-bs*2, y, bs*4, bs, "#fff"); 
-             drawPixelRect(ctx, x-bs, y-bs, bs*2, bs, "#fff"); 
-             drawPixelRect(ctx, x-bs*1.5, y+bs, bs*3, bs/2, "#fff"); 
+        function drawFluffyCloud(ctx, x, y, size) {
+            let s2 = size/2;
+            // Menggambar tumpukan beberapa kotak untuk efek awan pixel yang lebih "empuk"
+            ctx.fillStyle = "rgba(255,255,255,0.9)";
+            drawPixelRect(ctx, x - s2, y - s2/2, size, size/1.5, null); // Badan utama
+            drawPixelRect(ctx, x - s2 - s2/3, y, s2, s2/2, null); // Kiri
+            drawPixelRect(ctx, x + s2/1.5, y - s2/3, s2, s2/1.5, null); // Kanan
+             drawPixelRect(ctx, x - s2/2, y - s2/1.2, s2*1.5, s2/2, null); // Atas
         }
 
-        function drawTriangleMountain(ctx, xStart, yBase, width, height, color) {
-            ctx.fillStyle = color;
-            ctx.beginPath();
-            ctx.moveTo(xStart, yBase);
-            ctx.lineTo(xStart + width/2, yBase - height);
-            ctx.lineTo(xStart + width, yBase);
-            ctx.closePath();
-            ctx.fill();
-        }
 
-        // --- FIX UTAMA: BACKGROUND TENGAH (UKURAN HEWAN) ---
+        // --- MODIFIED: BACKGROUND TENGAH (PLANG GAMBAR BARU) ---
         function drawCleanBgMid(ctx, w, h) {
-            // Sawah Terasering
+            // Sawah Terasering (Tetap Prosedural)
             drawPixelRect(ctx, 0, 0, w, 60, "#71c971"); 
             drawPixelRect(ctx, 0, 55, w, 5, "#5cb85c");
-
             drawPixelRect(ctx, 0, 60, w, 80, "#8fbc8f");
             drawPixelRect(ctx, 0, 135, w, 5, "#71c971");
-
             drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
 
-            // Jalan & Plang
+            // Jalan Tanah (Tetap Prosedural)
             drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a");
-            const signX = 240; const signY = 60;
-            drawPixelRect(ctx, signX-40, signY+30, 16, 100, "#633d26");
-            drawPixelRect(ctx, signX+24, signY+30, 16, 100, "#633d26");
-            ctx.fillStyle = "#b07d54"; ctx.fillRect(signX-80, signY-20, 160, 50);
-            ctx.fillStyle = "#8a5a3a"; ctx.fillRect(signX-75, signY-15, 150, 40);
-            drawPixelRect(ctx, signX-70, signY, 8, 8, "#3a2416");
-            drawPixelRect(ctx, signX+62, signY, 8, 8, "#3a2416");
-            ctx.fillStyle = "#ffffff"; 
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.shadowColor = "#000000"; ctx.shadowOffsetX = 2; ctx.shadowOffsetY = 2;
-            ctx.fillText("DOLAN SAWAH", signX, signY+5);
-            ctx.shadowColor = "transparent";
 
-            // --- FUNGSI TANAM HEWAN YANG DIPERBAIKI ---
-            // Kita tambahkan parameter 'targetHeight' untuk memaksa ukuran pixel
+            // --- NEW: GAMBAR PLANG BARU ---
+            if (assets.imgPlang) {
+                 // Gambar plang di tengah jalan, di teras kedua
+                 // Posisi X tengah = 240. Posisi Y sekitar 45 agar menancap di rumput.
+                 const pW = assets.imgPlang.width;
+                 const pH = assets.imgPlang.height;
+                 ctx.drawImage(assets.imgPlang, 240 - pW / 2, 45);
+            }
+
+            // --- HEWAN (Tetap dipaksa kecil) ---
             const plantAnimal = (img, x, groundLineY, targetHeight) => {
                 if(!img) return;
-                // Hitung rasio asli gambar agar tidak gepeng
                 let ratio = img.width / img.height;
-                let sh = targetHeight; // Tinggi dipaksa (misal 32px)
-                let sw = sh * ratio;   // Lebar menyesuaikan rasio
-
-                // Gambar dengan ukuran kecil
+                let sh = targetHeight; 
+                let sw = sh * ratio;   
                 ctx.drawImage(img, x - sw/2, groundLineY - sh + 2, sw, sh);
             };
-
-            // Teras 1 (Jauh - Kecil 30px)
             plantAnimal(assets.imgDomba, 80, 55, 30);
             plantAnimal(assets.imgRusa, 420, 55, 35);
-
-            // Teras 2 (Tengah - Sedang 45px)
             plantAnimal(assets.imgKelinci, 340, 135, 40);
             plantAnimal(assets.imgDomba, 100, 135, 45);
-
-            // Teras 3 (Dekat - Besar 60px)
             plantAnimal(assets.imgRusa, 380, 230, 65);
             plantAnimal(assets.imgKelinci, 60, 230, 50);
         }
@@ -523,7 +510,8 @@
             const offsetMod = Math.floor(speedOffset % imgW);
             for (let i = 0; i < numTiles; i++) {
                 let xPos = (i * imgW) - offsetMod;
-                ctx.drawImage(img, xPos, yPos);
+                // Jika img adalah HTMLImageElement, tidak perlu menentukan width/height di drawImage jika ingin ukuran asli
+                ctx.drawImage(img, xPos, yPos, imgW, imgH);
             }
         }
 
@@ -624,26 +612,40 @@
 
         function draw(dt) {
             ctx.clearRect(0,0,canvas.width, canvas.height);
-            ctx.fillStyle = "#4fa4b8"; ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            // 1. LANGIT CERAH BARU
+            ctx.fillStyle = "#87CEEB"; 
+            ctx.fillRect(0,0,canvas.width,canvas.height);
+            
+            // 2. AWAN BARU (Di belakang gunung)
+            drawBetterClouds(ctx, game.bgOff);
 
             let groundY = canvas.height - 130;
             
-            // BG Layers
-            drawLayer(ctx, assets.bgFar, game.bgOff, groundY - 510, 480, 640);
+            // 3. BG JAUH (GAMBAR GUNUNG BARU) - Tiling Loop
+            if(assets.bgFarImage) {
+                 // Gambar gunung diletakkan agar dasarnya pas di garis horizon (groundY)
+                 // Kita gunakan ukuran asli gambar gunung untuk tiling
+                 let mtnW = assets.bgFarImage.width; 
+                 let mtnH = assets.bgFarImage.height;
+                 drawLayer(ctx, assets.bgFarImage, game.bgOff, groundY - mtnH, mtnW, mtnH);
+            }
+
+            // 4. BG TENGAH (Sawah, Jalan, & GAMBAR PLANG BARU) - Tiling Loop
             let midY = groundY - 220; 
             drawLayer(ctx, assets.bgMid, game.midOff, midY, 480, 240);
             
-            // Pipes
+            // 5. Pipes
             for(let p of game.pipes) {
                 let px = Math.floor(p.x);
                 ctx.save(); ctx.translate(px, p.topH); ctx.scale(1, -1); ctx.drawImage(assets.pipe, 0, 0); ctx.restore();
                 ctx.drawImage(assets.pipe, px, p.topH + CONFIG.gap);
             }
             
-            // Ground
+            // 6. Ground
             drawLayer(ctx, assets.ground, game.groundOff, groundY, 480, 130);
             
-            // Bird
+            // 7. Bird
             ctx.save(); ctx.translate(60, game.bird.y); ctx.rotate(game.bird.rot);
             if (game.graceTime > 0 && Math.floor(Date.now() / 100) % 2 === 0) ctx.globalAlpha = 0.5;
             let birdImg = assets.imgBirdUp;
