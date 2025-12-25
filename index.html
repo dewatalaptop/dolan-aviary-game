@@ -350,7 +350,8 @@
         const assets = {
             pipe: null, ground: null, bgMid: null,
             bgFarImage: null, imgPlang: null,
-            imgBirdUp: null, imgBirdDown: null, imgRusa: null, imgKelinci: null, imgDomba: null
+            imgBirdUp: null, imgBirdDown: null, imgRusa: null, imgKelinci: null, imgDomba: null,
+            imgKucing: null, imgBurungMandar: null // Tambahan aset baru
         };
 
         const imageURLs = {
@@ -360,7 +361,10 @@
             kelinci: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583166/IMG_7780_fdrcyi.png',
             domba: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583165/IMG_7782_f6h4cq.png',
             bgMountain: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589093/IMG_7792_oyfsqc.png',
-            plang: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589101/IMG_7793_y4fyap.png'
+            plang: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589101/IMG_7793_y4fyap.png',
+            // URL Tambahan Baru
+            kucing: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766620401/IMG_7803_jwata3.png',
+            burungMandar: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766620401/IMG_7804_xznsju.png'
         };
 
         function loadImg(url) {
@@ -372,15 +376,19 @@
 
         async function initAllAssets() {
             try {
-                const [bUp, bDown, rusa, kelinci, domba, mtn, plangImg] = await Promise.all([
+                // Menambahkan loading untuk Kucing dan Burung Mandar
+                const [bUp, bDown, rusa, kelinci, domba, mtn, plangImg, kucingImg, mandarImg] = await Promise.all([
                     loadImg(imageURLs.birdUp), loadImg(imageURLs.birdDown),
                     loadImg(imageURLs.rusa), loadImg(imageURLs.kelinci), loadImg(imageURLs.domba),
-                    loadImg(imageURLs.bgMountain), loadImg(imageURLs.plang)
+                    loadImg(imageURLs.bgMountain), loadImg(imageURLs.plang),
+                    loadImg(imageURLs.kucing), loadImg(imageURLs.burungMandar)
                 ]);
                 assets.imgBirdUp = bUp; assets.imgBirdDown = bDown;
                 assets.imgRusa = rusa; assets.imgKelinci = kelinci; assets.imgDomba = domba;
                 assets.bgFarImage = mtn;
                 assets.imgPlang = plangImg;
+                assets.imgKucing = kucingImg; // Simpan aset baru
+                assets.imgBurungMandar = mandarImg; // Simpan aset baru
 
                 const cP = createAssetCanvas(CONFIG.pipeW, 600); drawPixelLog(cP.ctx, CONFIG.pipeW, 600); assets.pipe = cP.cvs;
                 const cG = createAssetCanvas(480, 130); drawCleanGround(cG.ctx, 480, 130); assets.ground = cG.cvs;
@@ -411,16 +419,30 @@
             ctx.fillStyle = color; ctx.fillRect(Math.floor(x), Math.floor(y), Math.floor(w), Math.floor(h));
         }
 
+        // --- MODIFIKASI FUNGSI GAMBAR BATANG KAYU (Lebih Cerah & Bertekstur) ---
         function drawPixelLog(ctx, w, h) {
-            const cDark = "#3a2416"; const cMed = "#633d26"; const cLight = "#8a5a3a"; const cHigh = "#b07d54";
+            // Palette warna kayu baru yang lebih cerah dan hangat
+            const cDark = "#5D4037";  // Coklat tua (lebih cerah dari sebelumnya)
+            const cMed = "#795548";   // Coklat sedang
+            const cLight = "#A1887F"; // Coklat terang
+            const cHigh = "#D7CCC8";  // Highlight terang
+
+            // Basis batang bergaris (lebih cerah)
             drawPixelRect(ctx, 0, 0, w*0.2, h, cDark);
             drawPixelRect(ctx, w*0.2, 0, w*0.3, h, cMed);
             drawPixelRect(ctx, w*0.5, 0, w*0.3, h, cLight);
             drawPixelRect(ctx, w*0.8, 0, w*0.2, h, cHigh);
-            for(let i=0; i<h; i+=16) drawPixelRect(ctx, Math.random()*w*0.8, i, 8, 4, cDark);
+
+            // Tambah noise agar lebih mirip kulit kayu (bintik-bintik acak)
+            for(let i=0; i<h; i+=8) { // Kerapatan noise ditambah
+                drawPixelRect(ctx, Math.random()*w*0.9, i, 8, 4, cDark);
+                if(i%16 === 0) drawPixelRect(ctx, Math.random()*w*0.9, i+4, 6, 6, cMed); // Tambah variasi
+            }
+            
             drawLogEnd(ctx, 0, w, cDark, cMed, cLight);
             drawLogEnd(ctx, h-20, w, cDark, cMed, cLight);
         }
+
         function drawLogEnd(ctx, y, w, c1, c2, c3) {
             drawPixelRect(ctx, 0, y, w, 20, c1);
             drawPixelRect(ctx, 4, y+4, w-8, 12, c2);
@@ -464,10 +486,6 @@
             drawPixelRect(ctx, 0, 135, w, 5, "#71c971");
             drawPixelRect(ctx, 0, 140, w, 100, "#aedba3");
             
-            // --- PERBAIKAN 1: MENGHILANGKAN KOTAK COKLAT DI BELAKANG PLANG ---
-            // Baris di bawah ini dikomentari agar jalan tanah tidak tergambar
-            // drawPixelRect(ctx, 200, 60, 80, 180, "#8a5a3a"); 
-
             // --- HELPER SAKTI: FORCE RESIZE ---
             const plantResized = (img, xCenter, yBottom, targetH) => {
                 if(!img) return;
@@ -477,19 +495,26 @@
                 ctx.drawImage(img, xCenter - newW / 2, yBottom - newH, newW, newH);
             };
 
-            // 2. Gambar PLANG BARU (Dikecilkan paksa jadi tinggi 80px)
+            // 2. Gambar PLANG
             if (assets.imgPlang) {
-                 // Plang ditaruh di tengah (x=240), kaki di tanah (y=150)
                  plantResized(assets.imgPlang, 240, 150, 90);
             }
 
             // 3. Gambar HEWAN (Dikecilkan paksa jadi 30-60px)
+            // Hewan Lama
             plantResized(assets.imgDomba, 80, 58, 30);
             plantResized(assets.imgRusa, 420, 58, 35);
             plantResized(assets.imgKelinci, 340, 138, 40);
             plantResized(assets.imgDomba, 100, 138, 45);
             plantResized(assets.imgRusa, 380, 230, 60);
             plantResized(assets.imgKelinci, 60, 230, 45);
+
+            // --- TAMBAHAN HEWAN BARU ---
+            // Kucing (Ukuran sedang, ditaruh di pematang tengah)
+            plantResized(assets.imgKucing, 180, 138, 35);
+
+            // Burung Mandar Biru (Ukuran agak besar, ditaruh di foreground dekat air)
+            plantResized(assets.imgBurungMandar, 280, 230, 50);
         }
 
         // --- HELPER UNTUK TILING/LOOPING ---
