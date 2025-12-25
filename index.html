@@ -360,7 +360,7 @@
             rusa: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583160/IMG_7781_s5gqsi.png',
             kelinci: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583166/IMG_7780_fdrcyi.png',
             domba: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583165/IMG_7782_f6h4cq.png',
-            // URL GUNUNG BARU DIGANTI DI SINI:
+            // URL GUNUNG BARU
             bgMountain: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766622407/IMG_7806_rfa1j6.png',
             plang: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589101/IMG_7793_y4fyap.png',
             kucing: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766620401/IMG_7803_jwata3.png',
@@ -619,11 +619,13 @@
 
             let groundY = canvas.height - 130;
             
+            // --- PERBAIKAN POSISI GUNUNG ---
             if(assets.bgFarImage) {
                  let mH = 250; 
                  let ratio = assets.bgFarImage.width / assets.bgFarImage.height;
                  let mW = mH * ratio;
-                 drawLayer(ctx, assets.bgFarImage, game.bgOff, groundY - mH - 80, mW, mH);
+                 // Offset diubah menjadi +25 agar dasar gunung sedikit tertanam di bawah garis tanah
+                 drawLayer(ctx, assets.bgFarImage, game.bgOff, groundY - mH + 25, mW, mH);
             }
 
             let midY = groundY - 220; 
