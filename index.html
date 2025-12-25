@@ -360,7 +360,8 @@
             rusa: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583160/IMG_7781_s5gqsi.png',
             kelinci: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583166/IMG_7780_fdrcyi.png',
             domba: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766583165/IMG_7782_f6h4cq.png',
-            bgMountain: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589093/IMG_7792_oyfsqc.png',
+            // URL GUNUNG BARU DIGANTI DI SINI:
+            bgMountain: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766622407/IMG_7806_rfa1j6.png',
             plang: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766589101/IMG_7793_y4fyap.png',
             kucing: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766620401/IMG_7803_jwata3.png',
             burungMandar: 'https://res.cloudinary.com/dn60ib3ur/image/upload/v1766620401/IMG_7804_xznsju.png'
@@ -486,21 +487,17 @@
             }
 
             // 3. Gambar HEWAN (Disebar agar tidak menumpuk)
-            // PERUBAHAN 2: Koordinat X (parameter kedua) diubah untuk menyebarkan hewan
-
             // LAYER BELAKANG (y=58)
             plantResized(assets.imgDomba, 50, 58, 30);  // Kiri jauh
             plantResized(assets.imgRusa, 430, 58, 35);   // Kanan jauh
 
-            // LAYER TENGAH (y=138) - Dekat Plang
-            // Kucing digeser jauh ke kiri (x=80) agar tidak menutupi plang (x=240)
+            // LAYER TENGAH (y=138)
             plantResized(assets.imgKucing, 80, 138, 35); 
             plantResized(assets.imgDomba, 320, 138, 45); // Kanan
             plantResized(assets.imgKelinci, 400, 138, 40); // Kanan jauh
 
             // LAYER DEPAN (y=230)
             plantResized(assets.imgKelinci, 60, 230, 45);  // Kiri
-            // Burung Mandar digeser sedikit ke kiri dari tengah
             plantResized(assets.imgBurungMandar, 200, 230, 50); 
             plantResized(assets.imgRusa, 400, 230, 60);    // Kanan
         }
